@@ -1,11 +1,13 @@
-package com.example.weterview;
+package com.example.interview;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WeterviewApplication {
+public class InterviewApplication {
+
 	public static void main(String[] args) {
-		SpringApplication.run(WeterviewApplication.class, args);
+		SpringApplication.run(InterviewApplication.class, args);
 	}
+
 }
