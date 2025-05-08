@@ -2,6 +2,8 @@ package com.example.weterview.entity;
 
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -30,11 +32,14 @@ public class User {
     private byte[] profileImage;
 
     @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
+
 
     @Column(name = "withdrawn_at", updatable = false)
     private LocalDateTime withdrawnAt;
 
     @Column(name = "updated_at")
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 }
