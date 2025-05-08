@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @NoArgsConstructor
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -26,6 +25,9 @@ public class User {
 
     @Column(name = "password", length = 100, nullable = false)
     private String password;
+
+    @Column(name = "profile_image")
+    private byte[] profileImage;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
