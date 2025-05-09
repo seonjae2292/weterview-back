@@ -14,6 +14,10 @@ public class StudyGroup {
     @Column(name = "study_group_id")
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User userId;
+
     @Column(name = "category", nullable = false)
     private String category;
 
