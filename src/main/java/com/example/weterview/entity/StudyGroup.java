@@ -14,7 +14,7 @@ public class StudyGroup {
     @Column(name = "study_group_id")
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User userId;
 
