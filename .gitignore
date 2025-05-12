@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### secret keys
-**/*-secret.yml
+**/dev-secret.yml
