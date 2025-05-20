@@ -3,7 +3,7 @@ package com.example.weterview.dto;
 import lombok.Data;
 
 @Data
-public class KakaoTokenResponse {
+public class KakaoTokenRes {
     private String token_type;
     private String access_token;
     private String refresh_token;
