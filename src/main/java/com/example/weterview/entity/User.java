@@ -16,6 +16,12 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
+    @Column(name = "kakao_user_number")
+    private String kakaoUserNumber;
+
+    @Column(name = "kakao_auth_time")
+    private String kakaoAuthTime;
+
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
@@ -34,7 +40,6 @@ public class User {
     @Column(name = "created_at", updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
-
 
     @Column(name = "withdrawn_at", updatable = false)
     private LocalDateTime withdrawnAt;
