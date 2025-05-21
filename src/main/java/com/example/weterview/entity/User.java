@@ -1,6 +1,7 @@
 package com.example.weterview.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Data
 @Table(name = "users")
 @NoArgsConstructor
 public class User {
@@ -20,9 +22,9 @@ public class User {
     private String kakaoUserNumber;
 
     @Column(name = "kakao_auth_time")
-    private String kakaoAuthTime;
+    private Integer kakaoAuthTime;
 
-    @Column(name = "name", length = 100, nullable = false)
+    @Column(name = "name", length = 100)
     private String name;
 
     @Column(name = "nickname", length = 100)
@@ -31,7 +33,7 @@ public class User {
     @Column(name = "email", length = 100)
     private String email;
 
-    @Column(name = "password", length = 100, nullable = false)
+    @Column(name = "password", length = 100)
     private String password;
 
     @Column(name = "profile_image")
