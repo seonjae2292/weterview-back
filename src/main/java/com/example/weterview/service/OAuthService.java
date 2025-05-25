@@ -81,7 +81,7 @@ public class OAuthService {
     }
 
     /**
-     * 토큰을 받아 카카오 서버에 토큰에 들어있는 정보를 확인하기 위한 API 요청
+     * id_token을 받아 카카오 서버에 토큰에 들어있는 정보를 확인하기 위한 API 요청
      * @param tokenRes id_token 사용
      * @return
      */
@@ -125,9 +125,14 @@ public class OAuthService {
             return Mono.error(new IllegalArgumentException("Kakao user ID is null or empty"));
         }
 
+        // 구독이 일어나야 실행된다.
         return Mono.fromCallable(() -> {
+            // blocking 호출
             Optional<User> existingUser = userRepository.findByKakaoUserNumber(kakaoUniqueMemberId);
             return existingUser.isPresent() ? "카카오 가입한적 있음" : "카카오 가입한적 없음";
-        }).subscribeOn(Schedulers.boundedElastic());
+        }).subscribeOn(Schedulers.boundedElastic()); // 내부의 람다가 실행되는 스레드를 Schedulers.boundedElastic()에서 가져오도록 지정
+        // 실제 DB 조회는 boundedElastic 스레드 풀의 한 스레드에서 수행된다.
+        // 이동안 원래의 스테드(예 : http 요청을 처리하던 Netty 이벤트 루프 스레드)는 다른 작업을 계속 처리할 수 있게 된다.
+        // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
     }
 }
