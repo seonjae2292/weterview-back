@@ -48,6 +48,11 @@ public class OAuthService {
                 .doOnError(error -> log.error("OAuth verification failed: ", error));
     }
 
+    /**
+     * 프론트에서 전달받은 인가코드를 카카오 서버에 전달하여 토큰 받기
+     * @param code 프론트에서 전달받은 인가코드
+     * @return
+     */
     private Mono<KakaoTokenRes> getKakaoToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -75,8 +80,14 @@ public class OAuthService {
                 .bodyToMono(KakaoTokenRes.class);
     }
 
+    /**
+     * 토큰을 받아 카카오 서버에 토큰에 들어있는 정보를 확인하기 위한 API 요청
+     * @param tokenRes id_token 사용
+     * @return
+     */
     private Mono<KakaoIdTokenInfoRes> getKakaoUserInfo(KakaoTokenRes tokenRes) {
         String idToken = tokenRes.getId_token();
+
         if (idToken == null || idToken.trim().isEmpty()) {
             return Mono.error(new IllegalArgumentException("ID token is null or empty"));
         }
@@ -103,6 +114,11 @@ public class OAuthService {
                 .bodyToMono(KakaoIdTokenInfoRes.class);
     }
 
+    /**
+     * 고유회원번호가 디비에 있는지 조회
+     * @param userInfo 고유회원번호, 카카오 로그인 시간
+     * @return
+     */
     private Mono<String> checkUserExistence(KakaoIdTokenInfoRes userInfo) {
         String kakaoUniqueMemberId = userInfo.getSub();
         if (kakaoUniqueMemberId == null || kakaoUniqueMemberId.trim().isEmpty()) {
