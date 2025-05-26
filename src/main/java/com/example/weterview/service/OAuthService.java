@@ -1,23 +1,21 @@
 package com.example.weterview.service;
 
-import com.example.weterview.dto.KakaoIdTokenInfoRes;
-import com.example.weterview.dto.KakaoTokenRes;
-import com.example.weterview.entity.User;
+import com.example.weterview.dto.*;
+import com.example.weterview.dto.common.ApiResponse;
+
 import com.example.weterview.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.util.*;
+
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -41,13 +39,31 @@ public class OAuthService {
     @Value("${kakao.token-info-url}")
     private String kakaoInfoUrl;
 
-    public Mono<String> postVerifyUserToKakao(String code) {
+    public Mono<ApiResponse<?>> postVerifyUserToKakao(String code) {
         return getKakaoToken(code)
                 .flatMap(this::getKakaoUserInfo)
-                .flatMap(this::checkUserExistence)
+                .flatMap(kakaoInfo -> {
+                    String memberUniqueId = kakaoInfo.getSub(); // 회원 고유 아이디
+                    return doesUserExistOurService(memberUniqueId)
+                            .flatMap(isOurService -> {
+                                if (isOurService) {
+                                    return Mono.just(ApiResponse.ok(null, "기존 사용자 입니다"));
+                                } else {
+                                    NewUserKakaoInfoRes newUserKakaoInfoRes = new NewUserKakaoInfoRes();
+                                    newUserKakaoInfoRes.setKakaoUniqueId(memberUniqueId);
+
+                                    return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
+                                }
+                            });
+                })
                 .doOnError(error -> log.error("OAuth verification failed: ", error));
     }
 
+    /**
+     * 프론트에서 전달받은 인가코드를 카카오 서버에 전달하여 토큰 받기
+     * @param code 프론트에서 전달받은 인가코드
+     * @return
+     */
     private Mono<KakaoTokenRes> getKakaoToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -75,8 +91,14 @@ public class OAuthService {
                 .bodyToMono(KakaoTokenRes.class);
     }
 
+    /**
+     * id_token을 받아 카카오 서버에 토큰에 들어있는 정보를 확인하기 위한 API 요청
+     * @param tokenRes id_token 사용
+     * @return
+     */
     private Mono<KakaoIdTokenInfoRes> getKakaoUserInfo(KakaoTokenRes tokenRes) {
         String idToken = tokenRes.getId_token();
+
         if (idToken == null || idToken.trim().isEmpty()) {
             return Mono.error(new IllegalArgumentException("ID token is null or empty"));
         }
@@ -103,15 +125,22 @@ public class OAuthService {
                 .bodyToMono(KakaoIdTokenInfoRes.class);
     }
 
-    private Mono<String> checkUserExistence(KakaoIdTokenInfoRes userInfo) {
-        String kakaoUniqueMemberId = userInfo.getSub();
-        if (kakaoUniqueMemberId == null || kakaoUniqueMemberId.trim().isEmpty()) {
+    /**
+     * 고유회원번호가 디비에 있는지 조회
+     * @param memberUniqueId 고유회원번호
+     * @return
+     */
+    private Mono<Boolean> doesUserExistOurService(String memberUniqueId) {
+        if (memberUniqueId == null || memberUniqueId.trim().isEmpty()) {
             return Mono.error(new IllegalArgumentException("Kakao user ID is null or empty"));
         }
+        return Mono.fromCallable(() -> userRepository.findByKakaoUserNumber(memberUniqueId).isPresent())
+                .subscribeOn(Schedulers.boundedElastic());
+        // 구독이 일어나야 실행된다.
+        // 내부의 람다가 실행되는 스레드를 Schedulers.boundedElastic()에서 가져오도록 지정
+        // 실제 DB 조회는 boundedElastic 스레드 풀의 한 스레드에서 수행된다.
+        // 이동안 원래의 스테드(예 : http 요청을 처리하던 Netty 이벤트 루프 스레드)는 다른 작업을 계속 처리할 수 있게 된다.
+        // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
 
-        return Mono.fromCallable(() -> {
-            Optional<User> existingUser = userRepository.findByKakaoUserNumber(kakaoUniqueMemberId);
-            return existingUser.isPresent() ? "카카오 가입한적 있음" : "카카오 가입한적 없음";
-        }).subscribeOn(Schedulers.boundedElastic());
     }
 }
