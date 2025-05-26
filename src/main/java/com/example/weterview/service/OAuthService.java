@@ -2,6 +2,7 @@ package com.example.weterview.service;
 
 import com.example.weterview.dto.*;
 import com.example.weterview.dto.common.ApiResponse;
+
 import com.example.weterview.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.*;
+
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
@@ -139,5 +141,6 @@ public class OAuthService {
         // 실제 DB 조회는 boundedElastic 스레드 풀의 한 스레드에서 수행된다.
         // 이동안 원래의 스테드(예 : http 요청을 처리하던 Netty 이벤트 루프 스레드)는 다른 작업을 계속 처리할 수 있게 된다.
         // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
+
     }
 }
