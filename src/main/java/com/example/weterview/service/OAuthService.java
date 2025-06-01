@@ -42,8 +42,11 @@ public class OAuthService {
     public Mono<ApiResponse<?>> postVerifyUserToKakao(String code) {
         return getKakaoToken(code)
                 .flatMap(this::getKakaoUserInfo)
-                .flatMap(kakaoInfo -> {
-                    String memberUniqueId = kakaoInfo.getSub(); // 회원 고유 아이디
+                .flatMap(kakaoInfoFromIdToken -> {
+                    String memberUniqueId = kakaoInfoFromIdToken.getSub(); // 회원 고유 아이디
+                    String kakaoEmail = kakaoInfoFromIdToken.getEmail();
+                    String kakaoNickname = kakaoInfoFromIdToken.getNickname();
+
                     return doesUserExistOurService(memberUniqueId)
                             .flatMap(isOurService -> {
                                 if (isOurService) {
@@ -51,6 +54,8 @@ public class OAuthService {
                                 } else {
                                     NewUserKakaoInfoRes newUserKakaoInfoRes = new NewUserKakaoInfoRes();
                                     newUserKakaoInfoRes.setKakaoUniqueId(memberUniqueId);
+                                    newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
+                                    newUserKakaoInfoRes.setKakaoNickname(kakaoNickname);
 
                                     return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
                                 }

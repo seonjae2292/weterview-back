@@ -7,4 +7,6 @@ public class KakaoIdTokenInfoRes {
     private String sub;
     /** UNIX Timestamp */
     private Integer authTime;
+    private String nickname;
+    private String email;
 }
