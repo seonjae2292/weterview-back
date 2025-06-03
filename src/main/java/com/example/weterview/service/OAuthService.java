@@ -62,14 +62,14 @@ public class OAuthService {
                                     String accessToken = jwtUtil.generateAccessToken(kakaoEmail);
 
                                     signupRes.setAccessToken(accessToken);
-                                    signupRes.setOurMemeber(true);
+                                    signupRes.setOurMember(true);
 
                                     return Mono.just(ApiResponse.ok(signupRes, "기존 사용자 입니다"));
                                 } else {
                                     NewUserKakaoInfoRes newUserKakaoInfoRes = new NewUserKakaoInfoRes();
                                     newUserKakaoInfoRes.setKakaoUniqueId(memberUniqueId);
                                     newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
-                                    newUserKakaoInfoRes.setOurMemeber(false);
+                                    newUserKakaoInfoRes.setOurMember(false);
 
                                     return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
                                 }
