@@ -7,5 +7,4 @@ import lombok.*;
 public class NewUserKakaoInfoRes {
     private String kakaoUniqueId;
     private String kakaoEmail;
-    private String kakaoNickname;
 }
