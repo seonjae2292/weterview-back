@@ -3,11 +3,13 @@ package com.example.weterview.service;
 import com.example.weterview.dto.*;
 import com.example.weterview.dto.common.ApiResponse;
 
+import com.example.weterview.entity.User;
 import com.example.weterview.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.*;
 
@@ -17,12 +19,15 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.HashMap;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
     private final WebClient webClient;
     private final UserRepository userRepository;
+    private final PasswordEncoder pwEncoder;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -45,7 +50,6 @@ public class OAuthService {
                 .flatMap(kakaoInfoFromIdToken -> {
                     String memberUniqueId = kakaoInfoFromIdToken.getSub(); // 회원 고유 아이디
                     String kakaoEmail = kakaoInfoFromIdToken.getEmail();
-                    String kakaoNickname = kakaoInfoFromIdToken.getNickname();
 
                     return doesUserExistOurService(memberUniqueId)
                             .flatMap(isOurService -> {
@@ -55,7 +59,6 @@ public class OAuthService {
                                     NewUserKakaoInfoRes newUserKakaoInfoRes = new NewUserKakaoInfoRes();
                                     newUserKakaoInfoRes.setKakaoUniqueId(memberUniqueId);
                                     newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
-                                    newUserKakaoInfoRes.setKakaoNickname(kakaoNickname);
 
                                     return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
                                 }
@@ -146,6 +149,36 @@ public class OAuthService {
         // 실제 DB 조회는 boundedElastic 스레드 풀의 한 스레드에서 수행된다.
         // 이동안 원래의 스테드(예 : http 요청을 처리하던 Netty 이벤트 루프 스레드)는 다른 작업을 계속 처리할 수 있게 된다.
         // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
+    }
 
+    public ApiResponse<String> signup(SignupInfoDto userInfo) {
+        boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
+
+        if (isMember) {
+            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다.");
+        } else {
+            String encodedPassword = pwEncoder.encode(userInfo.getPassword());
+
+            User newUser = new User();
+            newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
+            newUser.setName(userInfo.getName());
+            newUser.setNickname(userInfo.getNickname());
+            newUser.setEmail(userInfo.getEmail());
+            newUser.setPassword(encodedPassword);
+
+            userRepository.save(newUser);
+
+            return ApiResponse.ok(null, "회원가입이 완료되었습니다.");
+        }
+    }
+
+    public ApiResponse<HashMap<String, Boolean>> isDuplicateNickname(String nickname) {
+        HashMap<String, Boolean> result = new HashMap<>();
+
+        boolean isMember = userRepository.existsByNickname(nickname);
+        result.put("isMember", isMember);
+        String message = isMember ? "중복된 닉네임 입니다." : "사용가능한 닉네임 입니다";
+
+        return ApiResponse.ok(result, message);
     }
 }
