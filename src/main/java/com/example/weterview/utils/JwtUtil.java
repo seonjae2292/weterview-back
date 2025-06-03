@@ -5,10 +5,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
 
 public class JwtUtil {
     @Value("${jwt.secret-key}")
@@ -20,7 +25,7 @@ public class JwtUtil {
 
     private SecretKey secretKey;
 
-    private static final String KEY_ROLES = "roles";
+//    private static final String KEY_ROLES = "roles"; TODO 뭔지 알아보기
     private static final String TOKEN_TYPE_ACCESS = "access";
     private static final String TOKEN_TYPE_REFRESH = "refresh";
     private static final String KEY_TOKEN_TYPE = "type";
@@ -35,7 +40,8 @@ public class JwtUtil {
 
     // 엑세스 토큰 생성 String
     public String generateAccessToken(String username) {
-        Claims claims = Jwts.claims().subject(username).build();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(Claims.SUBJECT, username);
         claims.put(KEY_TOKEN_TYPE, TOKEN_TYPE_ACCESS);
 
         Date now = new Date();

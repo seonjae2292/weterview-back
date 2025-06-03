@@ -33,5 +33,11 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+
+jwt:
+  secret-key: ${secret.jwt.secret-key}
+  access-token-expiration: ${secret.jwt.access-token-expiration}
+  refresh-token-expiration: ${secret.jwt.refresh-token-expiration}
+
 kakao:
   token-info-url: https://kauth.kakao.com/oauth/tokeninfo

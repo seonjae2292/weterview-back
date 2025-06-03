@@ -1,0 +1,8 @@
+package com.example.weterview.dto.common;
+
+import lombok.*;
+
+@Data
+public class SignupRes extends OurMemberDto {
+    private String accessToken;
+}
