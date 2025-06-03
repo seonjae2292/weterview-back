@@ -3,8 +3,11 @@ package com.example.weterview.service;
 import com.example.weterview.dto.*;
 import com.example.weterview.dto.common.ApiResponse;
 
+import com.example.weterview.dto.common.OurMemberDto;
+import com.example.weterview.dto.common.SignupRes;
 import com.example.weterview.entity.User;
 import com.example.weterview.repository.UserRepository;
+import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +31,7 @@ public class OAuthService {
     private final WebClient webClient;
     private final UserRepository userRepository;
     private final PasswordEncoder pwEncoder;
+    private final JwtUtil jwtUtil;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -44,7 +48,7 @@ public class OAuthService {
     @Value("${kakao.token-info-url}")
     private String kakaoInfoUrl;
 
-    public Mono<ApiResponse<?>> postVerifyUserToKakao(String code) {
+    public Mono<ApiResponse<? extends OurMemberDto>> postVerifyUserToKakao(String code) {
         return getKakaoToken(code)
                 .flatMap(this::getKakaoUserInfo)
                 .flatMap(kakaoInfoFromIdToken -> {
@@ -54,11 +58,18 @@ public class OAuthService {
                     return doesUserExistOurService(memberUniqueId)
                             .flatMap(isOurService -> {
                                 if (isOurService) {
-                                    return Mono.just(ApiResponse.ok(null, "기존 사용자 입니다"));
+                                    SignupRes signupRes = new SignupRes();
+                                    String accessToken = jwtUtil.generateAccessToken(kakaoEmail);
+
+                                    signupRes.setAccessToken(accessToken);
+                                    signupRes.setOurMemeber(true);
+
+                                    return Mono.just(ApiResponse.ok(signupRes, "기존 사용자 입니다"));
                                 } else {
                                     NewUserKakaoInfoRes newUserKakaoInfoRes = new NewUserKakaoInfoRes();
                                     newUserKakaoInfoRes.setKakaoUniqueId(memberUniqueId);
                                     newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
+                                    newUserKakaoInfoRes.setOurMemeber(false);
 
                                     return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
                                 }
@@ -155,7 +166,7 @@ public class OAuthService {
         boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
 
         if (isMember) {
-            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다.");
+            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
         } else {
             String encodedPassword = pwEncoder.encode(userInfo.getPassword());
 
@@ -168,7 +179,7 @@ public class OAuthService {
 
             userRepository.save(newUser);
 
-            return ApiResponse.ok(null, "회원가입이 완료되었습니다.");
+            return ApiResponse.ok(null, "회원가입이 완료되었습니다. 로그인을 해주세요");
         }
     }
 
