@@ -3,7 +3,7 @@ package com.example.weterview.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "study_memebership")
+@Table(name = "study_membership")
 public class StudyMembership {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

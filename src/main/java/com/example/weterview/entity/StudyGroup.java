@@ -1,13 +1,17 @@
 package com.example.weterview.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "study_groups")
+@Data
+@EntityListeners(AuditingEntityListener.class)
 public class StudyGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +25,15 @@ public class StudyGroup {
     @Column(name = "category", nullable = false)
     private String category;
 
-    @Column(name = "status", nullable = false)
-    private String status;
+    @Column(name = "status")
+    private String status; // 생성시 기본값 필요
+
+    @PrePersist
+    public void prePersist() {
+        if (this.status == null) {
+            this.status = "START";
+        }
+    }
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -57,7 +68,7 @@ public class StudyGroup {
     @Column(name = "contact", nullable = false)
     private String contact;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 

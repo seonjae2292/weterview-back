@@ -1,10 +1,15 @@
 package com.example.weterview.utils;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.lang.Collections;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -36,6 +41,15 @@ public class JwtUtil {
         // HS256 알고리즘을 사용하므로, 키의 길이는 최소 256비트 (32바이트) 이상을 권장합니다.
         byte[] keyBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    // request header에서 토큰 추출하기
+    public String resolveToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
     }
 
     // 엑세스 토큰 생성 String
@@ -99,6 +113,25 @@ public class JwtUtil {
     public String getTokenType(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return claims.get(KEY_TOKEN_TYPE, String.class);
+    }
+
+    public boolean validateToken(String token) {
+        try{
+            return !isTokenExpired(token);
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    // Authentication 객체 생성
+    public Authentication getAuthentication(String token) {
+        String username = getUsernameFromToken(token);
+        // 사용자 외 단일 user만 존재할 때는 principal에 username만 사용, 권한 필요시 빈 리스트
+        return new UsernamePasswordAuthenticationToken(
+                username,
+                token,
+                Collections.emptyList()
+        );
     }
 
     public boolean isAccessToken(String token) {
