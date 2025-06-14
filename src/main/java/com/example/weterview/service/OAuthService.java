@@ -162,26 +162,26 @@ public class OAuthService {
         // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
     }
 
-    public ApiResponse<String> signup(SignupInfoDto userInfo) {
-        boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
-
-        if (isMember) {
-            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
-        } else {
-            String encodedPassword = pwEncoder.encode(userInfo.getPassword());
-
-            User newUser = new User();
-            newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
-            newUser.setName(userInfo.getName());
-            newUser.setNickname(userInfo.getNickname());
-            newUser.setEmail(userInfo.getEmail());
-            newUser.setPassword(encodedPassword);
-
-            userRepository.save(newUser);
-
-            return ApiResponse.ok(null, "회원가입이 완료되었습니다. 로그인을 해주세요");
-        }
-    }
+//    public ApiResponse<String> signup(SignupInfoDto userInfo) {
+//        boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
+//
+//        if (isMember) {
+//            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
+//        } else {
+//            String encodedPassword = pwEncoder.encode(userInfo.getPassword());
+//
+//            User newUser = new User();
+//            newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
+//            newUser.setName(userInfo.getName());
+//            newUser.setNickname(userInfo.getNickname());
+//            newUser.setEmail(userInfo.getEmail());
+//            newUser.setPassword(encodedPassword);
+//
+//            userRepository.save(newUser);
+//
+//            return ApiResponse.ok(null, "회원가입이 완료되었습니다. 로그인을 해주세요");
+//        }
+//    }
 
     public ApiResponse<HashMap<String, Boolean>> isDuplicateNickname(String nickname) {
         HashMap<String, Boolean> result = new HashMap<>();
