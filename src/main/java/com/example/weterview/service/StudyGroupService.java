@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -74,7 +75,7 @@ public class StudyGroupService {
 
     public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(String id) {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(id))
-                .orElseThrow(() -> new IllegalArgumentException());
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시글 입니다."));
 
         GetStudyGroupByIdRes getStudyGroupByIdRes = GetStudyGroupByIdRes.builder()
                 .id(studyGroup.getId().toString())
@@ -148,6 +149,22 @@ public class StudyGroupService {
         studyGroupRepository.save(studyGroup);
 
         return ApiResponse.ok(studyGroup, "수정 성공");
+    }
+
+    // Soft 삭제로
+    @Transactional
+    public ApiResponse<?> deleteStudyGroup(String id) {
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(id))
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시글 입니다."));
+
+        if (studyGroup.getDeletedAt() != null) {
+            return ApiResponse.BAD_REQUEST(null, "이미 삭제된 게시글 입니다.");
+        }
+
+        studyGroup.setDeletedAt(LocalDateTime.now());
+        studyGroup.setStatus(StatusEnum.DELETED);
+
+        return ApiResponse.ok(null, "삭제 성공");
     }
 
     public Pageable createPageable(GetStudyGroupReq req) {
