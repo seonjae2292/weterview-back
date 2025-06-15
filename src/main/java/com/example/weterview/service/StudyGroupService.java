@@ -62,7 +62,7 @@ public class StudyGroupService {
         Page<GetStudyGroupPageRes> paged = entityPage.map(e -> {
             GetStudyGroupPageRes dto = new GetStudyGroupPageRes();
             // 리플렉션을 사용하여 source 객체의 property를 target 객체로 복사
-            // 같은 이름과 타입을 가진 필드들만 복사됨
+
             BeanUtils.copyProperties(e, dto);
             return dto;
         });
