@@ -37,4 +37,9 @@ public class StudyGroupController {
             @RequestBody @Valid UpdateStudyGroupReq req) {
         return studyGroupService.updateStudyGroup(id, req);
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ApiResponse<?> deleteStudyGroup(@PathVariable String id) {
+        return studyGroupService.deleteStudyGroup(id);
+    }
 }
