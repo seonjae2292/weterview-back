@@ -33,7 +33,7 @@ public class StudyGroup {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    @Comment( value = "모집중 or 모집완료")
+    @Comment( value = "모집중 or 모집완료 or 삭제됨")
     private StatusEnum status = StatusEnum.RECRUITING;
 
     @Column(name = "title", nullable = false)
