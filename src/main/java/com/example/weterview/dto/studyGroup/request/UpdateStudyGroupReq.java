@@ -18,4 +18,5 @@ public class UpdateStudyGroupReq {
     private String schedule;
     private String joinCondition;
     private String contact;
+    private String Status;
 }
