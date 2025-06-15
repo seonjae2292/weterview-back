@@ -3,8 +3,10 @@ package com.example.weterview.service;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.CreateStudyGroupReq;
 import com.example.weterview.dto.studyGroup.request.GetStudyGroupReq;
+import com.example.weterview.dto.studyGroup.request.UpdateStudyGroupReq;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
 import com.example.weterview.entity.StudyGroup;
+import com.example.weterview.enums.studyGroup.StatusEnum;
 import com.example.weterview.repository.StudyGroupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,12 +64,65 @@ public class StudyGroupService {
         Page<GetStudyGroupPageRes> paged = entityPage.map(e -> {
             GetStudyGroupPageRes dto = new GetStudyGroupPageRes();
             // 리플렉션을 사용하여 source 객체의 property를 target 객체로 복사
-
             BeanUtils.copyProperties(e, dto);
             return dto;
         });
 
         return ApiResponse.ok(paged, "스터디그룹 목록 조회 성공");
+    }
+
+    public ApiResponse<?> updateStudyGroup(String id, UpdateStudyGroupReq req) {
+        StudyGroup studyGroup = studyGroupRepository.findById(
+                Long.parseLong(id))
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시글 입니다"));
+
+        if (req.getField() != null) {
+            studyGroup.setField(req.getField());
+        }
+        if (req.getStatus() != null) {
+            studyGroup.setStatus(StatusEnum.valueOf(req.getStatus()));
+        }
+        if (req.getTitle() != null) {
+            studyGroup.setTitle(req.getTitle());
+        }
+        if (req.getSubTitle() != null) {
+            studyGroup.setSubTitle(req.getSubTitle());
+        }
+        if (req.getRecruitingNumber() != null) {
+            studyGroup.setRecruitingNumber(req.getRecruitingNumber());
+        }
+        if (req.getTotalNumber() != null) {
+            studyGroup.setTotalNumber(req.getTotalNumber());
+        }
+        if (req.getLocation() != null) {
+            studyGroup.setLocation(req.getLocation());
+        }
+        if (req.getDescription() != null) {
+            studyGroup.setDescription(req.getDescription());
+        }
+        if (req.getSchedule() != null) {
+            studyGroup.setSchedule(req.getSchedule());
+        }
+        if (req.getJoinCondition() != null) {
+            studyGroup.setJoinCondition(req.getJoinCondition());
+        }
+        if (req.getContact() != null) {
+            studyGroup.setContact(req.getContact());
+        }
+
+        if (req.getStartDate() != null && req.getEndDate() != null) {
+            LocalDateTime startDate = LocalDateTime.parse(req.getStartDate());
+            LocalDateTime endDate = LocalDateTime.parse(req.getEndDate());
+            if (startDate.isAfter(endDate)) {
+                throw new IllegalArgumentException("시작일은 마감일 이전이어야 합니다.");
+            }
+            studyGroup.setStartDate(startDate);
+            studyGroup.setEndDate(endDate);
+        }
+
+        studyGroupRepository.save(studyGroup);
+
+        return ApiResponse.ok(studyGroup, "수정 성공");
     }
 
     public Pageable createPageable(GetStudyGroupReq req) {
