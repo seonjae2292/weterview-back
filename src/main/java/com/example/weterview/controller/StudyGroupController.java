@@ -2,6 +2,7 @@ package com.example.weterview.controller;
 
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.CreateStudyGroupReq;
+import com.example.weterview.dto.studyGroup.request.GetStudyGroupByIdRes;
 import com.example.weterview.dto.studyGroup.request.GetStudyGroupReq;
 import com.example.weterview.dto.studyGroup.request.UpdateStudyGroupReq;
 import com.example.weterview.service.StudyGroupService;
@@ -23,6 +24,11 @@ public class StudyGroupController {
     @GetMapping("/get")
     public ApiResponse<?> getStudyGroup(@ModelAttribute @Valid GetStudyGroupReq req)  {
         return studyGroupService.getStudyGroup(req);
+    }
+
+    @GetMapping("/get/{id}")
+    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(@PathVariable String id) {
+        return studyGroupService.getStudyGroupById(id);
     }
 
     @PatchMapping("/update/{id}")

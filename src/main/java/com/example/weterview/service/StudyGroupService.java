@@ -2,6 +2,7 @@ package com.example.weterview.service;
 
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.CreateStudyGroupReq;
+import com.example.weterview.dto.studyGroup.request.GetStudyGroupByIdRes;
 import com.example.weterview.dto.studyGroup.request.GetStudyGroupReq;
 import com.example.weterview.dto.studyGroup.request.UpdateStudyGroupReq;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
@@ -69,6 +70,30 @@ public class StudyGroupService {
         });
 
         return ApiResponse.ok(paged, "스터디그룹 목록 조회 성공");
+    }
+
+    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(String id) {
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(id))
+                .orElseThrow(() -> new IllegalArgumentException());
+
+        GetStudyGroupByIdRes getStudyGroupByIdRes = GetStudyGroupByIdRes.builder()
+                .id(studyGroup.getId().toString())
+                .field(studyGroup.getField())
+                .status(studyGroup.getStatus())
+                .title(studyGroup.getTitle())
+                .subTitle(studyGroup.getSubTitle())
+                .recruitingNumber(studyGroup.getRecruitingNumber())
+                .totalNumber(studyGroup.getTotalNumber())
+                .startDate(studyGroup.getStartDate())
+                .endDate(studyGroup.getEndDate())
+                .location(studyGroup.getLocation())
+                .joinCondition(studyGroup.getJoinCondition())
+                .contact(studyGroup.getContact())
+                .createdAt(studyGroup.getCreatedAt())
+                .updatedAt(studyGroup.getUpdatedAt())
+                .build();
+
+        return ApiResponse.ok(getStudyGroupByIdRes, "조회성공");
     }
 
     public ApiResponse<?> updateStudyGroup(String id, UpdateStudyGroupReq req) {
