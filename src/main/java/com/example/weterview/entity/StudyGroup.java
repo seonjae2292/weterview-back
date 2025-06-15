@@ -1,5 +1,8 @@
 package com.example.weterview.entity;
 
+import com.example.weterview.enums.studyGroup.FieldEnum;
+import com.example.weterview.enums.studyGroup.LocationEnum;
+import com.example.weterview.enums.studyGroup.StatusEnum;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,18 +25,13 @@ public class StudyGroup {
     @JoinColumn(name = "user_id")
     private User userId;
 
-    @Column(name = "category", nullable = false)
-    private String category;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "field", nullable = false)
+    private FieldEnum field;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status; // 생성시 기본값 필요
-
-    @PrePersist
-    public void prePersist() {
-        if (this.status == null) {
-            this.status = "START";
-        }
-    }
+    private StatusEnum status = StatusEnum.RECRUITING;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -53,8 +51,9 @@ public class StudyGroup {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "location", nullable = false)
-    private String location;
+    private LocationEnum location;
 
     @Column(name = "description", nullable = false)
     private String description;
