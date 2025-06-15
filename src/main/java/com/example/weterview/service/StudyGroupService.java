@@ -54,23 +54,28 @@ public class StudyGroupService {
     }
 
     public ApiResponse<?> getStudyGroup(GetStudyGroupReq req) {
-        Pageable pageable = PageRequest.of(
-                req.getPageNumber() - 1,
-                req.getPageSize(),
-                Sort.by("id").ascending()
-        );
-
-        Specification<StudyGroup> spec = buildSpecification(req);
-
+        Pageable pageable = createPageable(req); // 페이지 조건
+        Specification<StudyGroup> spec = buildSpecification(req); // 검색 조건
         Page<StudyGroup> entityPage = studyGroupRepository.findAll(spec, pageable);
 
+        // StudyGroup Entity를 GetStudyGroupPageRes DTO로 변환하는 함수
         Page<GetStudyGroupPageRes> paged = entityPage.map(e -> {
             GetStudyGroupPageRes dto = new GetStudyGroupPageRes();
+            // 리플렉션을 사용하여 source 객체의 property를 target 객체로 복사
+            // 같은 이름과 타입을 가진 필드들만 복사됨
             BeanUtils.copyProperties(e, dto);
             return dto;
         });
 
         return ApiResponse.ok(paged, "스터디그룹 목록 조회 성공");
+    }
+
+    public Pageable createPageable(GetStudyGroupReq req) {
+        return PageRequest.of(
+                req.getPageNumber() - 1,
+                req.getPageSize(),
+                Sort.by("id").ascending()
+        );
     }
 
     private Specification<StudyGroup> buildSpecification(GetStudyGroupReq req) {
