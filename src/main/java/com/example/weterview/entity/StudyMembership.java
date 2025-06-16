@@ -1,9 +1,11 @@
 package com.example.weterview.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "study_membership")
+@Data
 public class StudyMembership {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -11,8 +13,8 @@ public class StudyMembership {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "kakao_user_number")
-    private User kakaoUserNumber;
+    @JoinColumn(name = "user_id")
+    private User userId;
 
     @ManyToOne
     @JoinColumn(name = "study_group_id")
