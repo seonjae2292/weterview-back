@@ -1,14 +1,16 @@
 package com.example.weterview.service;
 
 import com.example.weterview.dto.common.ApiResponse;
-import com.example.weterview.dto.studyGroup.request.CreateStudyGroupReq;
-import com.example.weterview.dto.studyGroup.request.GetStudyGroupByIdRes;
-import com.example.weterview.dto.studyGroup.request.GetStudyGroupReq;
-import com.example.weterview.dto.studyGroup.request.UpdateStudyGroupReq;
+import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
 import com.example.weterview.entity.StudyGroup;
+import com.example.weterview.entity.StudyMembership;
+import com.example.weterview.entity.User;
 import com.example.weterview.enums.studyGroup.StatusEnum;
 import com.example.weterview.repository.StudyGroupRepository;
+import com.example.weterview.repository.StudyMembershipRepository;
+import com.example.weterview.repository.UserRepository;
+import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -29,6 +31,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class StudyGroupService {
     private final StudyGroupRepository studyGroupRepository;
+    private final StudyMembershipRepository studyMembershipRepository;
+    private final UserRepository userRepository;
+
+    private final JwtUtil jwtUtil;
 
     // 스터디 그룹 모임 생성
     public ApiResponse<?> createStudyGroup(CreateStudyGroupReq req) {
@@ -57,6 +63,7 @@ public class StudyGroupService {
         }
     }
 
+    // 스터디 그룹 조회
     public ApiResponse<?> getStudyGroup(GetStudyGroupReq req) {
         Pageable pageable = createPageable(req); // 페이지 조건
         Specification<StudyGroup> spec = buildSpecification(req); // 검색 조건
@@ -73,6 +80,7 @@ public class StudyGroupService {
         return ApiResponse.ok(paged, "스터디그룹 목록 조회 성공");
     }
 
+    // 스터디 그룹 단일 조회
     public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(String id) {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new IllegalArgumentException("없는 게시글 입니다."));
@@ -97,6 +105,7 @@ public class StudyGroupService {
         return ApiResponse.ok(getStudyGroupByIdRes, "조회성공");
     }
 
+    // 스터디 그룹 수정
     public ApiResponse<?> updateStudyGroup(String id, UpdateStudyGroupReq req) {
         StudyGroup studyGroup = studyGroupRepository.findById(
                 Long.parseLong(id))
@@ -151,7 +160,7 @@ public class StudyGroupService {
         return ApiResponse.ok(studyGroup, "수정 성공");
     }
 
-    // Soft 삭제로
+    // 스터디 그룹 삭제(soft)
     @Transactional
     public ApiResponse<?> deleteStudyGroup(String id) {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(id))
@@ -165,6 +174,30 @@ public class StudyGroupService {
         studyGroup.setStatus(StatusEnum.DELETED);
 
         return ApiResponse.ok(null, "삭제 성공");
+    }
+
+    // 토큰 -> 토큰의 subject에서 kakaoUserNumber 추출 -> 존재하는 번호인지 확인 -> 성공
+    public ApiResponse<?> joinStudyGroup(JoinStudyGroupReq req, String jwt) {
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(req.getStudyGroupId())).orElseThrow(() ->
+                new IllegalArgumentException("없는 스터디 그룹 게시글 입니다."));
+
+        String kakaoUserNumber  = jwtUtil.getUsernameFromToken(jwt);
+        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber).orElseThrow(() ->
+                new IllegalArgumentException("존재하지 않는 사용자 입니다."));
+
+        // 이미 신청한 사용자 인지 검증
+        boolean isAlreadyMember = studyMembershipRepository.findByStudyGroupIdAndUserId(studyGroup, user).isPresent();
+        if (isAlreadyMember) {
+            return ApiResponse.BAD_REQUEST(null, "이미 신청한 사용자 입니다.");
+        }
+
+        StudyMembership studyMembership = new StudyMembership();
+        studyMembership.setStudyGroupId(studyGroup);
+        studyMembership.setUserId(user);
+
+        studyMembershipRepository.save(studyMembership);
+
+        return ApiResponse.ok(null, "성공");
     }
 
     public Pageable createPageable(GetStudyGroupReq req) {
