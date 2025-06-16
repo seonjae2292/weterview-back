@@ -96,7 +96,8 @@ public class JwtUtil {
 
     // 토큰에서 사용자 이름 추출 String
     public String getUsernameFromToken(String token) {
-        return getAllClaimsFromToken(token).getSubject();
+        String jwt = token.replace("Bearer ", "");
+        return getAllClaimsFromToken(jwt).getSubject();
     }
 
     // 토큰 만료일 추출

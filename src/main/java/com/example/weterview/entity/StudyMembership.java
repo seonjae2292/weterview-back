@@ -1,9 +1,11 @@
 package com.example.weterview.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "study_membership")
+@Data
 public class StudyMembership {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

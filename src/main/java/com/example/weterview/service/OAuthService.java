@@ -59,7 +59,7 @@ public class OAuthService {
                             .flatMap(isOurService -> {
                                 if (isOurService) {
                                     SignupRes signupRes = new SignupRes();
-                                    String accessToken = jwtUtil.generateAccessToken(kakaoEmail);
+                                    String accessToken = jwtUtil.generateAccessToken(memberUniqueId);
 
                                     signupRes.setAccessToken(accessToken);
                                     signupRes.setOurMember(true);

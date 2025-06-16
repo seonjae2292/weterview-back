@@ -1,10 +1,7 @@
 package com.example.weterview.controller;
 
 import com.example.weterview.dto.common.ApiResponse;
-import com.example.weterview.dto.studyGroup.request.CreateStudyGroupReq;
-import com.example.weterview.dto.studyGroup.request.GetStudyGroupByIdRes;
-import com.example.weterview.dto.studyGroup.request.GetStudyGroupReq;
-import com.example.weterview.dto.studyGroup.request.UpdateStudyGroupReq;
+import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.service.StudyGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +19,7 @@ public class StudyGroupController {
     }
 
     @GetMapping("/get")
-    public ApiResponse<?> getStudyGroup(@ModelAttribute @Valid GetStudyGroupReq req)  {
+    public ApiResponse<?> getStudyGroup(@ModelAttribute @Valid GetStudyGroupReq req) {
         return studyGroupService.getStudyGroup(req);
     }
 
@@ -41,5 +38,12 @@ public class StudyGroupController {
     @DeleteMapping("/delete/{id}")
     public ApiResponse<?> deleteStudyGroup(@PathVariable String id) {
         return studyGroupService.deleteStudyGroup(id);
+    }
+
+    @PostMapping("/join")
+    public ApiResponse<?> joinStudyGroup(
+            @RequestBody JoinStudyGroupReq req,
+            @RequestHeader("Authorization") String jwt) {
+        return studyGroupService.joinStudyGroup(req, jwt);
     }
 }
