@@ -11,8 +11,8 @@ public class StudyMembership {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User userId;
+    @JoinColumn(name = "kakao_user_number")
+    private User kakaoUserNumber;
 
     @ManyToOne
     @JoinColumn(name = "study_group_id")

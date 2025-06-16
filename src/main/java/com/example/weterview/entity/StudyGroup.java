@@ -23,8 +23,8 @@ public class StudyGroup {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User userId;
+    @JoinColumn(name = "kakao_user_number")
+    private User kakaoUserNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "field", nullable = false)
