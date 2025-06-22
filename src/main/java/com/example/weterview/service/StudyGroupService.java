@@ -2,11 +2,14 @@ package com.example.weterview.service;
 
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
+import com.example.weterview.dto.studyGroup.response.GetCommentRes;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
 import com.example.weterview.entity.StudyGroup;
+import com.example.weterview.entity.StudyGroupComment;
 import com.example.weterview.entity.StudyMembership;
 import com.example.weterview.entity.User;
 import com.example.weterview.enums.studyGroup.StatusEnum;
+import com.example.weterview.repository.StudyGroupCommentRepository;
 import com.example.weterview.repository.StudyGroupRepository;
 import com.example.weterview.repository.StudyMembershipRepository;
 import com.example.weterview.repository.UserRepository;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -33,6 +37,7 @@ public class StudyGroupService {
     private final StudyGroupRepository studyGroupRepository;
     private final StudyMembershipRepository studyMembershipRepository;
     private final UserRepository userRepository;
+    private final StudyGroupCommentRepository studyGroupCommentRepository;
 
     private final JwtUtil jwtUtil;
 
@@ -174,6 +179,38 @@ public class StudyGroupService {
         studyGroup.setStatus(StatusEnum.DELETED);
 
         return ApiResponse.ok(null, "삭제 성공");
+    }
+
+    public ApiResponse<?> createComment(CreateCommentReq req, String jwt) {
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(req.getStudyGroupId()))
+                .orElseThrow(() -> new IllegalArgumentException("없는 스터디 그룹 게시글 입니다."));
+
+        String kakaoUserNumber = jwtUtil.getUsernameFromToken(jwt);
+        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
+
+        StudyGroupComment studyGroupComment = new StudyGroupComment();
+        studyGroupComment.setContent(req.getContents());
+        studyGroupComment.setStudyGroup(studyGroup);
+        studyGroupComment.setUser(user);
+
+        studyGroupCommentRepository.save(studyGroupComment);
+
+        return ApiResponse.ok(null, "성공");
+    }
+
+    public ApiResponse<List<GetCommentRes>> getComment(String studyGroupId) {
+        List<StudyGroupComment> comments = studyGroupCommentRepository.findByStudyGroupId(Long.parseLong(studyGroupId));
+
+        if (comments.isEmpty()) {
+            throw new IllegalArgumentException("댓글없음");
+        }
+
+        List<GetCommentRes> result = comments.stream()
+                .map(item ->
+                        new GetCommentRes(item.getContent(), item.getCreatedAt(), item.getUser().getNickname()))
+                .toList();
+
+        return ApiResponse.ok(result, "성공");
     }
 
     // 토큰 -> 토큰의 subject에서 kakaoUserNumber 추출 -> 존재하는 번호인지 확인 -> 성공

@@ -46,4 +46,16 @@ public class StudyGroupController {
             @RequestHeader("Authorization") String jwt) {
         return studyGroupService.joinStudyGroup(req, jwt);
     }
+
+    @PostMapping("/create/comment")
+    public ApiResponse<?> createComment(
+            @RequestBody CreateCommentReq req,
+            @RequestHeader("Authorization") String jwt) {
+        return studyGroupService.createComment(req, jwt);
+    }
+
+    @GetMapping("/get/comment/{studyGroupId}")
+    public ApiResponse<?> getComment(@PathVariable String studyGroupId) {
+        return studyGroupService.getComment(studyGroupId);
+    }
 }
