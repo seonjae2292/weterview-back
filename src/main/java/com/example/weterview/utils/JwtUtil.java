@@ -38,7 +38,7 @@ public class JwtUtil {
     @PostConstruct
     protected void init() {
         // String 형태의 secretKey를 SecretKey 객체로 변환
-        // HS256 알고리즘을 사용하므로, 키의 길이는 최소 256비트 (32바이트) 이상을 권장합니다.
+        // HS256 알고리즘을 사용하므로, 키의 길이는 최소 256비트 (32바이트) 이상
         byte[] keyBytes = secretKeyString.getBytes(StandardCharsets.UTF_8);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
