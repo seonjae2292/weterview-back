@@ -24,11 +24,6 @@ public class OAuthController {
         return oAuthService.postVerifyUserToKakao(code);
     }
 
-//    @PostMapping("/signup")
-//    public ApiResponse<String> signup(@RequestBody SignupInfoDto req) {
-//        return oAuthService.signup(req);
-//    }
-
     @GetMapping("/verify/duplicate/nickname")
     public ApiResponse<HashMap<String, Boolean>> isDuplicateNickname(@RequestParam("nickname") String nickname) {
         return oAuthService.isDuplicateNickname(nickname);
