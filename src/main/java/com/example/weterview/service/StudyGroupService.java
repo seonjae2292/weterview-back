@@ -4,15 +4,9 @@ import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.GetCommentRes;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
-import com.example.weterview.entity.StudyGroup;
-import com.example.weterview.entity.StudyGroupComment;
-import com.example.weterview.entity.StudyMembership;
-import com.example.weterview.entity.User;
+import com.example.weterview.entity.*;
 import com.example.weterview.enums.studyGroup.StatusEnum;
-import com.example.weterview.repository.StudyGroupCommentRepository;
-import com.example.weterview.repository.StudyGroupRepository;
-import com.example.weterview.repository.StudyMembershipRepository;
-import com.example.weterview.repository.UserRepository;
+import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +33,7 @@ public class StudyGroupService {
     private final StudyMembershipRepository studyMembershipRepository;
     private final UserRepository userRepository;
     private final StudyGroupCommentRepository studyGroupCommentRepository;
+    private final StudyGroupLikeRepository studyGroupLikeRepository;
 
     private final JwtUtil jwtUtil;
 
@@ -211,6 +207,41 @@ public class StudyGroupService {
                 .toList();
 
         return ApiResponse.ok(result, "성공");
+    }
+
+    public ApiResponse<?> likeStudyGroup(String studyGroupId, String jwt) {
+        String kakaoUserNumber = jwtUtil.getUsernameFromToken(jwt);
+
+        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
+                .orElseThrow(() -> new IllegalArgumentException("없는 회원정보 입니다."));
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글 입니다."));
+
+        StudyGroupLike studyGroupLike = new StudyGroupLike();
+        studyGroupLike.setUser(user);
+        studyGroupLike.setStudyGroup(studyGroup);
+
+        studyGroupLikeRepository.save(studyGroupLike);
+
+        return ApiResponse.ok(null, "좋아요 성공");
+    }
+
+    // Soft Delete로 구현
+    public ApiResponse<?> unlikeStudyGroup(String studyGroupId, String jwt) {
+        String kakaoUserNumber = jwtUtil.getUsernameFromToken(jwt);
+
+        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
+                .orElseThrow(() -> new IllegalArgumentException("없는 회원정보 입니다."));
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글 입니다."));
+
+        StudyGroupLike studyGroupLike = studyGroupLikeRepository.findByStudyGroupAndUser(studyGroup, user)
+                .orElseThrow(() -> new IllegalArgumentException("없는 게시글입니다."));
+
+        studyGroupLike.setDeletedAt(LocalDateTime.now());
+        studyGroupLikeRepository.save(studyGroupLike);
+
+        return ApiResponse.ok(null, "좋이요 취소 성공");
     }
 
     // 토큰 -> 토큰의 subject에서 kakaoUserNumber 추출 -> 존재하는 번호인지 확인 -> 성공
