@@ -1,7 +1,6 @@
 package com.example.weterview.utils;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.lang.Collections;
 import io.jsonwebtoken.security.Keys;
@@ -100,28 +99,10 @@ public class JwtUtil {
         return getAllClaimsFromToken(jwt).getSubject();
     }
 
-    // 토큰 만료일 추출
-    public Date getExpirationDateFromToken(String token) {
-        return getAllClaimsFromToken(token).getExpiration();
-    }
-
-    // 토큰 만료 여부 확인 boolean
+    // 토큰 만료 시간에 따른 만료 여부 확인
     public boolean isTokenExpired(String token) {
         Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
-    }
-
-    public String getTokenType(String token) {
-        Claims claims = getAllClaimsFromToken(token);
-        return claims.get(KEY_TOKEN_TYPE, String.class);
-    }
-
-    public boolean validateToken(String token) {
-        try{
-            return !isTokenExpired(token);
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+        return !expiration.before(new Date());
     }
 
     // Authentication 객체 생성
@@ -135,13 +116,8 @@ public class JwtUtil {
         );
     }
 
-    public boolean isAccessToken(String token) {
-        String tokenType = getTokenType(token);
-        return TOKEN_TYPE_ACCESS.equals(tokenType);
-    }
-
-    public boolean isRefreshToken(String token) {
-        String tokenType = getTokenType(token);
-        return TOKEN_TYPE_REFRESH.equals(tokenType);
+    // 토큰 만료일 추출
+    private Date getExpirationDateFromToken(String token) {
+        return getAllClaimsFromToken(token).getExpiration();
     }
 }
