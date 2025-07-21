@@ -84,23 +84,24 @@ public class MyPageService {
         User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
 
-        // 1) 참여 정보를 가져오는 코드 쿼리 한번 조회 List에 데이터가 5개 들어있다고 가정한다.
+        // 쿼리 한번
         List<StudyMembership> studyMembershipList = studyMembershipRepository.findByUserId(user) // 한번
                 .orElseThrow(() -> new IllegalArgumentException("실패"));
 
-        List<GetJoinedStudyGroupRes> result = new ArrayList<>();
+        // id list에 담기
+        List<Long> studyGroupIds = studyMembershipList.stream()
+                .map(item -> item.getStudyGroupId().getId())
+                .toList();
+        // 쿼리 한번
+        List<StudyGroup> studyGroups = studyGroupRepository.findAllById(studyGroupIds);
 
-        // 2) 참여 정보가 있는 List로 스터디 그룹 정보를 조회한다.
-        // List에는 5개의 데이터가 있으니 총 5번 조회하게 된다.
-        // 1 + N 문제 발생
-        for (StudyMembership studyMembership : studyMembershipList) { // N번
-            StudyGroup studyGroup = studyGroupRepository.findById(studyMembership.getStudyGroupId().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("실패"));
+        List<GetJoinedStudyGroupRes> result = studyGroups.stream()
+                .map(item -> {
+                    GetJoinedStudyGroupRes res = new GetJoinedStudyGroupRes();
+                    res.setTitle(item.getTitle());
+                    return res;
+                }).toList();
 
-            GetJoinedStudyGroupRes getJoinedStudyGroupRes = new GetJoinedStudyGroupRes();
-            getJoinedStudyGroupRes.setTitle(studyGroup.getTitle());
-            result.add(getJoinedStudyGroupRes);
-        }
 
         return ApiResponse.ok(result, "success");
     };
