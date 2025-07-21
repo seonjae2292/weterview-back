@@ -14,9 +14,12 @@ public class StudyMembership {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User userId;
+    // 객체 지향적 의미를 살리기 위해서 userId가 아닌 user라는 명으로 변경한다
+    // JPA에서 @ManyToOne, @OneToOne Annotation은 엔티티를 참조한다.
+    // 그렇기 때문에 user라고 짓는것이 명확하고 직관적이다.
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "study_group_id")
-    private StudyGroup studyGroupId;
+    private StudyGroup studyGroup;
 }
