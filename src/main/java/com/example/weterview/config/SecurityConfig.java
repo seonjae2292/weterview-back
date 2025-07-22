@@ -20,6 +20,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtUtil jwtUtil;
 
+    private static final String[] OAUTH_URL = {
+            "/oauth/**",
+            "/auth/**"
+    };
+
+    private static final String[] SWAGGER_URL = {
+            "/v3/api-docs/**", // Swagger UI 리소스
+            "/swagger-ui/**", // Swagger UI 페이지
+            "/swagger-ui.html" // OpenAPI 명세서
+    };
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtUtil);
@@ -31,8 +42,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers(
-                        "/oauth/**", "/auth/**").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers(OAUTH_URL).permitAll()
+                                .requestMatchers(SWAGGER_URL).permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
