@@ -79,30 +79,19 @@ public class MyPageService {
 
     // TODO : 개선해야하는 부분
     // 내가 참여한 스터디 그룹 모집 게시글 조회
-    public ApiResponse<?> getJoinedStudyGroups(String jwt) {
+    public ApiResponse<?> getJoinedStudyGroups(String jwt, int pageNumber, int pageSize) {
         String kakaoUniqueNumber = jwtUtil.getUsernameFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
 
+        Pageable pageable = PageRequest.of(pageNumber, pageSize,
+                Sort.by("createdAt").descending());
+
         // 쿼리 한번
-        List<StudyMembership> studyMembershipList = studyMembershipRepository.findByUserId(user) // 한번
-                .orElseThrow(() -> new IllegalArgumentException("실패"));
+        Page<StudyGroup> joinedStudyGroupList = studyMembershipRepository
+                .findByUserWithStudyGroup(user, pageable);
 
-        // id list에 담기
-        List<Long> studyGroupIds = studyMembershipList.stream()
-                .map(item -> item.getStudyGroupId().getId())
-                .toList();
-        // 쿼리 한번
-        List<StudyGroup> studyGroups = studyGroupRepository.findAllById(studyGroupIds);
-
-        List<GetJoinedStudyGroupRes> result = studyGroups.stream()
-                .map(item -> {
-                    GetJoinedStudyGroupRes res = new GetJoinedStudyGroupRes();
-                    res.setTitle(item.getTitle());
-                    return res;
-                }).toList();
-
-
-        return ApiResponse.ok(result, "success");
+        Page<GetJoinedStudyGroupRes> result = joinedStudyGroupList.map(GetJoinedStudyGroupRes::from);
+        return ApiResponse.ok(result.getContent(), "자신이 참여한 스터디 그룹 조회");
     };
 }
