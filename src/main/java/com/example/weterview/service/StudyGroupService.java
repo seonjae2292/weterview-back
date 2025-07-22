@@ -260,8 +260,8 @@ public class StudyGroupService {
         }
 
         StudyMembership studyMembership = new StudyMembership();
-        studyMembership.setStudyGroupId(studyGroup);
-        studyMembership.setUserId(user);
+        studyMembership.setStudyGroup(studyGroup);
+        studyMembership.setUser(user);
 
         studyMembershipRepository.save(studyMembership);
 
