@@ -31,11 +31,19 @@ public class SecurityConfig {
             "/swagger-ui.html" // OpenAPI 명세서
     };
 
+    /**
+     * JWT 인증 필터 빈 등록
+     * - 들어오는 요청의 헤더에서 토큰을 꺼내서 검증하고,
+     *   유효하면 SecurityContext에 인증 정보 세팅.
+     */
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtUtil);
     }
 
+    /**
+     * 보안 필터 체인 설정
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -51,6 +59,10 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * 비밀번호 암호화에 사용할 BCrypt 인코더 빈 등록
+     * - 회원가입 등에서 비밀번호를 해시할 때 사용
+     */
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

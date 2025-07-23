@@ -8,6 +8,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebClientConfig {
+    /**
+     * WebClient 빈 등록
+     * - 외부 API 호출을 위한 논블로킹 HTTP 클라이언트
+     */
     @Bean
     public WebClient webClient(WebClient.Builder builder) {
         return builder
