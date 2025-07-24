@@ -8,7 +8,7 @@ WORKDIR /app
 # 실제 실행 가능한 JAR 파일을 복사합니다.
 # build.gradle에 따라 빌드된 JAR 파일의 정확한 경로를 지정해야 합니다.
 # 일반적으로 build/libs/프로젝트명-버전.jar 형태로 생성됩니다.
-ARG JAR_FILE=build/libs/interview-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=interview-0.0.1-SNAPSHOT.jar
 COPY ${JAR_FILE} app.jar
 
 # 2단계: 최종 이미지 생성
