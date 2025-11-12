@@ -1,7 +1,9 @@
 package com.example.weterview.entity;
 
+import com.example.weterview.enums.studyMembership.JoinEnum;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Comment;
 
 /// 스터디 그룹 게시글에 참여한 사용자 테이블
 @Entity
@@ -23,4 +25,8 @@ public class StudyMembership {
     @ManyToOne
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
+
+    @Column(name = "status")
+    @Comment( value = "참가요청 or 수락 or 거절")
+    private JoinEnum join;
 }
