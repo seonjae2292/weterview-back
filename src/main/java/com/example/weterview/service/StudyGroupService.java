@@ -341,13 +341,4 @@ public class StudyGroupService {
         return ApiResponse.ok(userList, "success");
     }
 
-//    /// 스터디 그룹 신청 수락
-//    public ApiResponse<?> acceptJoinStudyGroup(String studyGroupId) {
-//
-//    }
-//
-//    /// 스터디 그룹 신청 거절
-//    public ApiResponse<?> rejectJoinStudyGroup(String studyGroupId) {
-//
-//    }
 }

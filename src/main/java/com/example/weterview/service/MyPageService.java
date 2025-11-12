@@ -8,6 +8,7 @@ import com.example.weterview.dto.myPage.response.GetMyPageInfoRes;
 import com.example.weterview.entity.StudyGroup;
 import com.example.weterview.entity.StudyMembership;
 import com.example.weterview.entity.User;
+import com.example.weterview.enums.studyMembership.JoinEnum;
 import com.example.weterview.repository.StudyGroupRepository;
 import com.example.weterview.repository.StudyMembershipRepository;
 import com.example.weterview.repository.UserRepository;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -94,4 +94,30 @@ public class MyPageService {
         Page<GetJoinedStudyGroupRes> result = joinedStudyGroupList.map(GetJoinedStudyGroupRes::from);
         return ApiResponse.ok(result.getContent(), "자신이 참여한 스터디 그룹 조회");
     };
+
+    /// 스터디 그룹 신청 수락
+    public ApiResponse<?> acceptJoinStudyGroup(String studyGroupId) {
+        StudyMembership studyMembership =
+                studyMembershipRepository.findById(Long.parseLong(studyGroupId))
+                        .orElseThrow(() -> new IllegalArgumentException("개설되지 않은 스터디 그룹 입니다."));
+
+        studyMembership.setJoin(JoinEnum.ACCEPT);
+
+        studyMembershipRepository.save(studyMembership);
+
+        return ApiResponse.ok("승인했습니다.");
+    }
+
+    /// 스터디 그룹 신청 거절
+    public ApiResponse<?> rejectJoinStudyGroup(String studyGroupId) {
+        StudyMembership studyMembership =
+                studyMembershipRepository.findById(Long.parseLong(studyGroupId))
+                .orElseThrow(() -> new IllegalArgumentException("개설되지 않은 스터디 그룹 입니다."));
+
+        studyMembership.setJoin(JoinEnum.REFUSE);
+
+        studyMembershipRepository.save(studyMembership);
+
+        return ApiResponse.ok("거절했습니다");
+    }
 }

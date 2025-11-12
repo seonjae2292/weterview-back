@@ -70,15 +70,15 @@ public class MyPageController {
         return studyGroupService.getAppliedStudyGroup(studyGroupId);
     }
 
-//    // 스터디 그룹 신청 수락
-//    @PostMapping("/accept/{studyGroupId}")
-//    public ApiResponse<?> acceptJoinStudyGroup(@PathVariable String studyGroupId) {
-//        return studyGroupService.acceptJoinStudyGroup(studyGroupId);
-//    }
-//
-//    // 스터디 그룹 신청 거절
-//    @PostMapping("/reject/{studyGroupId}")
-//    public ApiResponse<?> rejectJoinStudyGroup(@PathVariable String studyGroupId) {
-//        return studyGroupService.rejectJoinStudyGroup(studyGroupId);
-//    }
+    // 스터디 그룹 신청 수락
+    @PostMapping("/accept/{studyGroupId}")
+    public ApiResponse<?> acceptJoinStudyGroup(@PathVariable String studyGroupId) {
+        return myPageService.acceptJoinStudyGroup(studyGroupId);
+    }
+
+    // 스터디 그룹 신청 거절
+    @PostMapping("/reject/{studyGroupId}")
+    public ApiResponse<?> rejectJoinStudyGroup(@PathVariable String studyGroupId) {
+        return myPageService.rejectJoinStudyGroup(studyGroupId);
+    }
 }

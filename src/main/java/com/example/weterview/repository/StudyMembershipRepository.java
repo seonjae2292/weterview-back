@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @Repository
 public interface StudyMembershipRepository extends JpaRepository<StudyMembership, Long> {
+    Optional<StudyMembership> findById(Long studyGroupId);
     Optional<StudyMembership> findByStudyGroupIdAndUserId(StudyGroup studyGroupId, User userId);
 
     @Query(value = "select User " +
