@@ -3,6 +3,8 @@ package com.example.weterview.dto.common;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import javax.swing.text.html.Option;
+
 @Getter
 public class ApiResponse<T> {
     private final int status;
@@ -17,6 +19,10 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> ok(T data, String message) {
         return new ApiResponse<>(HttpStatus.OK, message, data);
+    }
+
+    public static <T> ApiResponse<T> ok(String message) {
+        return new ApiResponse<>(HttpStatus.OK, message, null);
     }
 
     public static <T> ApiResponse<T> NOT_FOUND(T data, String message) {
