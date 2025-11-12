@@ -26,7 +26,15 @@ public class StudyMembership {
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     @Comment( value = "참가요청 or 수락 or 거절")
     private JoinEnum join;
+
+    @PrePersist
+    public void setDefaultJoinStatus() {
+        if (this.join == null) {
+            this.join = JoinEnum.REQUEST;
+        }
+    }
 }
