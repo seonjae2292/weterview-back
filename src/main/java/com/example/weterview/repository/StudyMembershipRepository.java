@@ -17,6 +17,11 @@ import java.util.Optional;
 public interface StudyMembershipRepository extends JpaRepository<StudyMembership, Long> {
     Optional<StudyMembership> findByStudyGroupIdAndUserId(StudyGroup studyGroupId, User userId);
 
+    @Query(value = "select User " +
+            "from User u " +
+            "where u.id in (select m.user from StudyMembership m where m.studyGroup = : studyGroupId)", nativeQuery = true)
+    Optional<List<User>> findByStudyGroupId(long studyGroupId);
+
     @Query("select m.studyGroup from StudyMembership m where m.user = : user")
     Page<StudyGroup> findByUserWithStudyGroup(@Param("user") User user, Pageable pageable);
 }

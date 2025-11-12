@@ -5,6 +5,7 @@ import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
 import com.example.weterview.dto.myPage.response.GetMyPageInfoRes;
 import com.example.weterview.service.MyPageService;
+import com.example.weterview.service.StudyGroupService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyPageController {
     private final MyPageService myPageService;
+    private final StudyGroupService studyGroupService;
 
     @GetMapping("/info")
     public ApiResponse<GetMyPageInfoRes> getMyPageInfo(@RequestHeader("Authorization") String jwt) {
@@ -54,4 +56,29 @@ public class MyPageController {
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return myPageService.getJoinedStudyGroups(jwt, pageNumber, pageSize);
     }
+
+    // 스터디 그룹 상세 정보 조회
+    @GetMapping("/detail/{studyGroupId}")
+    public ApiResponse<?> getStudyGroupDetail(@PathVariable String studyGroupId) {
+        return studyGroupService.getStudyGroupDetail(studyGroupId);
+    }
+
+    // 스터디 그룹 신청자 조회
+    /// 스터디 그룹 상세 정보에서 자신이 개설한 정보 확인
+    @GetMapping("/applied/list/{studyGroupId}")
+    public ApiResponse<?> getAppliedStudyGroup(@PathVariable String studyGroupId) {
+        return studyGroupService.getAppliedStudyGroup(studyGroupId);
+    }
+
+//    // 스터디 그룹 신청 수락
+//    @PostMapping("/accept/{studyGroupId}")
+//    public ApiResponse<?> acceptJoinStudyGroup(@PathVariable String studyGroupId) {
+//        return studyGroupService.acceptJoinStudyGroup(studyGroupId);
+//    }
+//
+//    // 스터디 그룹 신청 거절
+//    @PostMapping("/reject/{studyGroupId}")
+//    public ApiResponse<?> rejectJoinStudyGroup(@PathVariable String studyGroupId) {
+//        return studyGroupService.rejectJoinStudyGroup(studyGroupId);
+//    }
 }

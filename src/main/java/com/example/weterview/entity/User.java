@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/// weterview에 가입한 사용자 테이블
 @Entity
 @Data
 @Table(name = "users")

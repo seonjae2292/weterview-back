@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/// 스터디 그룹 게시글 테이블
 @Entity
 @Table(name = "study_groups")
 @Data

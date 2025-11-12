@@ -3,6 +3,7 @@ package com.example.weterview.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+/// 스터디 그룹 게시글에 참여한 사용자 테이블
 @Entity
 @Table(name = "study_membership")
 @Data

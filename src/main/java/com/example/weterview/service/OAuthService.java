@@ -52,23 +52,30 @@ public class OAuthService {
         return getKakaoToken(code)
                 .flatMap(this::getKakaoUserInfo)
                 .flatMap(kakaoInfoFromIdToken -> {
-                    String memberUniqueId = kakaoInfoFromIdToken.getSub(); // 회원 고유 아이디
+                    String kakaoUserNumber = kakaoInfoFromIdToken.getSub(); // 회원 고유 아이디
                     String kakaoEmail = kakaoInfoFromIdToken.getEmail();
+                    // TODO : 카카오 비즈 앱 신청하고 name으로 변경 필요
+                    String kakaoNickname = kakaoInfoFromIdToken.getNickname();
 
-                    return doesUserExistOurService(memberUniqueId)
+                    return doesUserExistOurService(kakaoUserNumber)
                             .flatMap(isOurService -> {
                                 if (isOurService) {
                                     SignupRes signupRes = new SignupRes();
-                                    String accessToken = jwtUtil.generateAccessToken(memberUniqueId);
+                                    String accessToken = jwtUtil.generateAccessToken(kakaoUserNumber, kakaoNickname);
 
                                     signupRes.setAccessToken(accessToken);
                                     signupRes.setOurMember(true);
 
                                     return Mono.just(ApiResponse.ok(signupRes, "기존 사용자 입니다"));
                                 } else {
+                                    /// 소셜 로그인 시에 새로운 사용자면 이 시점에 DB에 바로 저장하지 않고
+                                    /// isOutMember 값을 false로 응답 주게 되면 프론트에서 추가 정보
+                                    /// 입력 후에 DB에 저장 될 수 있게 할 것
                                     NewUserKakaoInfoRes newUserKakaoInfoRes = new NewUserKakaoInfoRes();
-                                    newUserKakaoInfoRes.setKakaoUniqueId(memberUniqueId);
+
+                                    newUserKakaoInfoRes.setKakaoUniqueId(kakaoUserNumber);
                                     newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
+                                    newUserKakaoInfoRes.setName(kakaoNickname);
                                     newUserKakaoInfoRes.setOurMember(false);
 
                                     return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
@@ -162,26 +169,26 @@ public class OAuthService {
         // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
     }
 
-//    public ApiResponse<String> signup(SignupInfoDto userInfo) {
-//        boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
-//
-//        if (isMember) {
-//            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
-//        } else {
-//            String encodedPassword = pwEncoder.encode(userInfo.getPassword());
-//
-//            User newUser = new User();
-//            newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
-//            newUser.setName(userInfo.getName());
-//            newUser.setNickname(userInfo.getNickname());
-//            newUser.setEmail(userInfo.getEmail());
-//            newUser.setPassword(encodedPassword);
-//
-//            userRepository.save(newUser);
-//
-//            return ApiResponse.ok(null, "회원가입이 완료되었습니다. 로그인을 해주세요");
-//        }
-//    }
+    public ApiResponse<String> signup(SignupInfoDto userInfo) {
+        boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
+
+        if (isMember) {
+            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
+        } else {
+            String encodedPassword = pwEncoder.encode(userInfo.getPassword());
+
+            User newUser = new User();
+            newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
+            newUser.setName(userInfo.getName());
+            newUser.setNickname(userInfo.getNickname());
+            newUser.setEmail(userInfo.getEmail());
+            newUser.setPassword(encodedPassword);
+
+            userRepository.save(newUser);
+
+            return ApiResponse.ok(null, "회원가입이 완료되었습니다. 로그인을 해주세요");
+        }
+    }
 
     public ApiResponse<HashMap<String, Boolean>> isDuplicateNickname(String nickname) {
         HashMap<String, Boolean> result = new HashMap<>();

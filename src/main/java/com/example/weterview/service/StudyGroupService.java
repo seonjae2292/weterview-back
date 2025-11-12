@@ -3,6 +3,7 @@ package com.example.weterview.service;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.GetCommentRes;
+import com.example.weterview.dto.studyGroup.response.GetStudyGroupDetailRes;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.enums.studyGroup.StatusEnum;
@@ -19,7 +20,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,10 +38,18 @@ public class StudyGroupService {
     private final JwtUtil jwtUtil;
 
     // 스터디 그룹 모임 생성
-    public ApiResponse<?> createStudyGroup(CreateStudyGroupReq req) {
+    public ApiResponse<?> createStudyGroup(String jwt, CreateStudyGroupReq req) {
         try{
+            // 토큰에서 username 추출
+            String name = jwtUtil.getUsernameFromToken(jwt);
+
+            // username으로 User 테이블에서 userId 조회
+            User user = userRepository.findByName(name)
+                    .orElseThrow(() -> new IllegalArgumentException("username에 해당하는 사용자가 존재하지 않습니다."));
+
             StudyGroup studyGroup = new StudyGroup();
 
+            studyGroup.setUser(user);
             studyGroup.setField(req.getField());
             studyGroup.setTitle(req.getTitle());
             studyGroup.setSubTitle(req.getSubTitle());
@@ -293,4 +301,53 @@ public class StudyGroupService {
                 .reduce(Specification::and)
                 .orElse((root, q, cb) -> cb.conjunction());
     }
+
+    public ApiResponse<GetStudyGroupDetailRes> getStudyGroupDetail(String studyGroupId){
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 스터디 그룹이 존재하지 않습니다."));
+
+        GetStudyGroupDetailRes result = new GetStudyGroupDetailRes();
+        result.setField(studyGroup.getField());
+        result.setStatus(studyGroup.getStatus());
+        result.setRecruitingNumber(studyGroup.getRecruitingNumber());
+        result.setTotalNumber(studyGroup.getTotalNumber());
+        result.setStartDate(studyGroup.getStartDate());
+        result.setEndDate(studyGroup.getEndDate());
+        result.setLocation(studyGroup.getLocation());
+        result.setTitle(studyGroup.getTitle());
+        result.setSubTitle(studyGroup.getSubTitle());
+        result.setDescription(studyGroup.getDescription());
+        result.setSchedule(studyGroup.getSchedule());
+        result.setJoinCondition(studyGroup.getJoinCondition());
+        result.setContact(studyGroup.getContact());
+        result.setCreatedAt(studyGroup.getCreatedAt());
+        result.setUpdatedAt(studyGroup.getUpdatedAt());
+        result.setDeletedAt(studyGroup.getDeletedAt());
+
+        return ApiResponse.ok(result, "Success");
+    }
+
+    /// 스터디 그룹 신청자 조회
+    /// 스터디 그룹에 어떤 사용자들이 신청했는지 조회
+    /// 스터디 그룹 상세 정보에서 자신이 개설한 정보 확인
+    public ApiResponse<List<User>> getAppliedStudyGroup(String studyGroupId) {
+        /// 2. 스터디 그룹 멤버십 테이블에서 정보 조회
+        /// 특정 스터디 그룹에 속해 있는 사용자 목록 데이터
+        List<User> userList =
+                studyMembershipRepository
+                        .findByStudyGroupId(Long.valueOf(studyGroupId))
+                        .orElseThrow(() -> new IllegalArgumentException("해당 스터디 그룹에 속한 사용자가 없습니다."));
+
+        return ApiResponse.ok(userList, "success");
+    }
+
+//    /// 스터디 그룹 신청 수락
+//    public ApiResponse<?> acceptJoinStudyGroup(String studyGroupId) {
+//
+//    }
+//
+//    /// 스터디 그룹 신청 거절
+//    public ApiResponse<?> rejectJoinStudyGroup(String studyGroupId) {
+//
+//    }
 }

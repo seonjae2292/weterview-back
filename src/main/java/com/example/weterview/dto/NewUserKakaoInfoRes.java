@@ -9,4 +9,5 @@ import lombok.*;
 public class NewUserKakaoInfoRes extends OurMemberDto {
     private String kakaoUniqueId;
     private String kakaoEmail;
+    private String name;
 }

@@ -23,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String token = jwtUtil.resolveToken(request);
         if (token != null && jwtUtil.isTokenExpired(token)) {
-            Authentication auth = jwtUtil.getAuthentication(token);
+            Authentication auth = jwtUtil.createAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         // **반드시** 다음 필터로 요청을 넘겨줘야 함

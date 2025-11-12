@@ -28,4 +28,9 @@ public class OAuthController {
     public ApiResponse<HashMap<String, Boolean>> isDuplicateNickname(@RequestParam("nickname") String nickname) {
         return oAuthService.isDuplicateNickname(nickname);
     }
+
+    @PostMapping("/signup")
+    public ApiResponse<?> signup(@RequestBody SignupInfoDto request) {
+        return oAuthService.signup(request);
+    }
 }
