@@ -47,7 +47,7 @@ public class StudyGroupController {
         return studyGroupService.deleteStudyGroup(id);
     }
 
-    // 스터디 그룹 모집 게시글 참여하기
+    // 스터디 그룹 참여 신청
     @PostMapping("/join")
     public ApiResponse<?> joinStudyGroup(
             @RequestBody JoinStudyGroupReq req,

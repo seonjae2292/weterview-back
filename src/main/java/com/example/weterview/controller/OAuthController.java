@@ -24,6 +24,7 @@ public class OAuthController {
         return oAuthService.postVerifyUserToKakao(code);
     }
 
+    // 닉네임 중복 확인
     @GetMapping("/verify/duplicate/nickname")
     public ApiResponse<HashMap<String, Boolean>> isDuplicateNickname(@RequestParam("nickname") String nickname) {
         return oAuthService.isDuplicateNickname(nickname);
