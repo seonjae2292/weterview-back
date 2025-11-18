@@ -1,6 +1,5 @@
-package com.example.weterview.dto;
+package com.example.weterview.dto.common;
 
-import com.example.weterview.dto.common.OurMemberDto;
 import lombok.*;
 
 @Data
@@ -9,5 +8,4 @@ import lombok.*;
 public class NewUserKakaoInfoRes extends OurMemberDto {
     private String kakaoUniqueId;
     private String kakaoEmail;
-    private String name;
 }
