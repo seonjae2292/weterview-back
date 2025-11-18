@@ -1,6 +1,6 @@
 package com.example.weterview.dto.studyGroup.request;
 
-import com.example.weterview.dto.common.PagiBasicDto;
+import com.example.weterview.dto.common.response.PagiBasicDto;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;

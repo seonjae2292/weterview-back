@@ -3,9 +3,10 @@ package com.example.weterview.service;
 import com.example.weterview.dto.*;
 import com.example.weterview.dto.common.ApiResponse;
 
-import com.example.weterview.dto.common.NewUserKakaoInfoRes;
-import com.example.weterview.dto.common.OurMemberDto;
-import com.example.weterview.dto.common.SignupRes;
+import com.example.weterview.dto.common.response.NewUserKakaoInfoRes;
+import com.example.weterview.dto.common.response.OurMemberDto;
+import com.example.weterview.dto.common.response.SignupRes;
+import com.example.weterview.dto.common.request.SignupInfoReq;
 import com.example.weterview.entity.User;
 import com.example.weterview.repository.UserRepository;
 import com.example.weterview.utils.JwtUtil;
@@ -167,19 +168,19 @@ public class OAuthService {
         // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
     }
 
-    public ApiResponse<String> signup(SignupInfoDto userInfo) {
+    // 추가 정보 입력 -> 회원가입
+    public ApiResponse<String> signup(SignupInfoReq userInfo) {
         boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
 
         if (isMember) {
             return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
         } else {
-            String encodedPassword = pwEncoder.encode(userInfo.getPassword());
-
             User newUser = new User();
+
             newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
             newUser.setNickname(userInfo.getNickname());
-            newUser.setEmail(userInfo.getEmail());
-            newUser.setPassword(encodedPassword);
+            newUser.setGender(userInfo.getGender());
+            newUser.setKakaoEmail(userInfo.getKakaoEmail());
 
             userRepository.save(newUser);
 

@@ -41,8 +41,9 @@ public class MyPageService {
         GetMyPageInfoRes getMyPageInfoRes = new GetMyPageInfoRes();
         getMyPageInfoRes.setCreatedAt(user.getCreatedAt());
         getMyPageInfoRes.setUpdatedAt(user.getUpdatedAt());
-        getMyPageInfoRes.setEmail(user.getEmail());
+        getMyPageInfoRes.setKakaoEmail(user.getKakaoEmail());
         getMyPageInfoRes.setNickname(user.getNickname());
+        getMyPageInfoRes.setGender(user.getGender());
 
         return ApiResponse.ok(getMyPageInfoRes, "사용자 정보 반환");
     }
