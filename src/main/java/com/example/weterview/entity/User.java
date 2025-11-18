@@ -20,16 +20,19 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "kakao_user_number")
+    @Column(nullable = false, name = "kakao_user_number")
     private String kakaoUserNumber;
 
-    @Column(name = "nickname", length = 100)
+    @Column(nullable = false,name = "nickname", length = 100)
     private String nickname;
 
-    @Column(name = "kakao_email", length = 100)
-    private String email;
+    @Column(nullable = false,name = "kakao_email", length = 100)
+    private String kakaoEmail;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(nullable = false, name = "gender")
+    private String gender;
+
+    @Column(nullable = false,name = "created_at", updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
