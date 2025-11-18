@@ -1,4 +1,4 @@
-package com.example.weterview.dto.common;
+package com.example.weterview.dto.common.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

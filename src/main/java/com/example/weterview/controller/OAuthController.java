@@ -1,8 +1,8 @@
 package com.example.weterview.controller;
 
-import com.example.weterview.dto.SignupInfoDto;
+import com.example.weterview.dto.common.request.SignupInfoReq;
 import com.example.weterview.dto.common.ApiResponse;
-import com.example.weterview.dto.common.OurMemberDto;
+import com.example.weterview.dto.common.response.OurMemberDto;
 import com.example.weterview.service.OAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class OAuthController {
     }
 
     @PostMapping("/signup")
-    public ApiResponse<?> signup(@RequestBody SignupInfoDto request) {
+    public ApiResponse<?> signup(@RequestBody SignupInfoReq request) {
         return oAuthService.signup(request);
     }
 }

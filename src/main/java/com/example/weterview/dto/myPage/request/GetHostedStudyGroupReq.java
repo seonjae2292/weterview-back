@@ -1,6 +1,6 @@
 package com.example.weterview.dto.myPage.request;
 
-import com.example.weterview.dto.common.PagiBasicDto;
+import com.example.weterview.dto.common.response.PagiBasicDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
