@@ -137,13 +137,13 @@ public class JwtUtil {
     }
 
     /**
-     * 주어진 토큰에서 사용자 이름을 추출합니다.
+     * 주어진 토큰에서 "사용자의 카카오 회원번호"를 추출
      * JWT의 "name" 클레임에 해당하는 값을 반환합니다.
      *
      * @param token JWT 문자열
-     * @return 사용자 이름 (String)
+     * @return 사용자의 카카오 회원번호
      */
-    public String getUsernameFromToken(String token) {
+    public String getKakaoUserNumFromToken(String token) {
         String jwt = token.replace("Bearer ", "");
         try {
 //            return Jwts
@@ -161,7 +161,7 @@ public class JwtUtil {
 
             log.info("JWT claims = {}", claims); // 여기에 실제 키들이 다 찍힘
 
-            return claims.get("name", String.class);
+            return claims.get("kakaoUserNumber", String.class);
         } catch (Exception e) {
             log.info("사용자 이름 추출 에러" + e.toString());
             return "사용자 이름 추출 에러";

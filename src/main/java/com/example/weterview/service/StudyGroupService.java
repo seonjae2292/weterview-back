@@ -41,10 +41,10 @@ public class StudyGroupService {
     public ApiResponse<?> createStudyGroup(String jwt, CreateStudyGroupReq req) {
         try{
             // 토큰에서 username 추출
-            String name = jwtUtil.getUsernameFromToken(jwt);
+            String kakaoUserNum = jwtUtil.getKakaoUserNumFromToken(jwt);
 
             // username으로 User 테이블에서 userId 조회
-            User user = userRepository.findByName(name)
+            User user = userRepository.findByKakaoUserNumber(kakaoUserNum)
                     .orElseThrow(() -> new IllegalArgumentException("username에 해당하는 사용자가 존재하지 않습니다."));
 
             StudyGroup studyGroup = new StudyGroup();
@@ -189,7 +189,7 @@ public class StudyGroupService {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(req.getStudyGroupId()))
                 .orElseThrow(() -> new IllegalArgumentException("없는 스터디 그룹 게시글 입니다."));
 
-        String kakaoUserNumber = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUserNumber).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
 
         StudyGroupComment studyGroupComment = new StudyGroupComment();
@@ -218,7 +218,7 @@ public class StudyGroupService {
     }
 
     public ApiResponse<?> likeStudyGroup(String studyGroupId, String jwt) {
-        String kakaoUserNumber = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
 
         User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 회원정보 입니다."));
@@ -236,7 +236,7 @@ public class StudyGroupService {
 
     // Soft Delete로 구현
     public ApiResponse<?> unlikeStudyGroup(String studyGroupId, String jwt) {
-        String kakaoUserNumber = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
 
         User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 회원정보 입니다."));
@@ -257,7 +257,7 @@ public class StudyGroupService {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(req.getStudyGroupId())).orElseThrow(() ->
                 new IllegalArgumentException("없는 스터디 그룹 게시글 입니다."));
 
-        String kakaoUserNumber  = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUserNumber  = jwtUtil.getKakaoUserNumFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUserNumber).orElseThrow(() ->
                 new IllegalArgumentException("존재하지 않는 사용자 입니다."));
 

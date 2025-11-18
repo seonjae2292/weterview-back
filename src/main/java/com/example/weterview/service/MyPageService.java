@@ -34,7 +34,7 @@ public class MyPageService {
     // 사용자 mypage 정보 가져오기
     public ApiResponse<GetMyPageInfoRes> getMyPageInfo(String jwt) {
         // 카카로 고유 number
-        String kakaoUniqueNumber = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다."));
 
@@ -42,16 +42,14 @@ public class MyPageService {
         getMyPageInfoRes.setCreatedAt(user.getCreatedAt());
         getMyPageInfoRes.setUpdatedAt(user.getUpdatedAt());
         getMyPageInfoRes.setEmail(user.getEmail());
-        getMyPageInfoRes.setName(user.getName());
         getMyPageInfoRes.setNickname(user.getNickname());
-        getMyPageInfoRes.setProfileImage(user.getProfileImage());
 
         return ApiResponse.ok(getMyPageInfoRes, "사용자 정보 반환");
     }
 
     // 닉네임 변경
     public ApiResponse<?> updateNickname(String jwt, UpdateNicknameReq req) {
-        String kakaoUniqueNumber = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
 
@@ -64,7 +62,7 @@ public class MyPageService {
 
     // 내가 개설한 스터디 그룹 모집 게시글 조회
     public ApiResponse<List<GetHostedStudyGroupRes>> getHostedStudyGroups(String jwt, int pageNumber, int pageSize) {
-        String kakaoUniqueNumber = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
 
@@ -80,7 +78,7 @@ public class MyPageService {
     // TODO : 개선해야하는 부분
     // 내가 참여한 스터디 그룹 모집 게시글 조회
     public ApiResponse<?> getJoinedStudyGroups(String jwt, int pageNumber, int pageSize) {
-        String kakaoUniqueNumber = jwtUtil.getUsernameFromToken(jwt);
+        String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
 
