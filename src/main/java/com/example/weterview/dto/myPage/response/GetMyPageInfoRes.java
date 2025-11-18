@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 public class GetMyPageInfoRes {
     private LocalDateTime createdAt;
     private LocalDateTime UpdatedAt;
-    private String email;
-    private String name;
+    private String kakaoEmail;
     private String nickname;
-    private byte[] profileImage;
+    private String gender;
 }
