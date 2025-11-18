@@ -3,6 +3,7 @@ package com.example.weterview.service;
 import com.example.weterview.dto.*;
 import com.example.weterview.dto.common.ApiResponse;
 
+import com.example.weterview.dto.common.NewUserKakaoInfoRes;
 import com.example.weterview.dto.common.OurMemberDto;
 import com.example.weterview.dto.common.SignupRes;
 import com.example.weterview.entity.User;
@@ -52,16 +53,14 @@ public class OAuthService {
         return getKakaoToken(code)
                 .flatMap(this::getKakaoUserInfo)
                 .flatMap(kakaoInfoFromIdToken -> {
-                    String kakaoUserNumber = kakaoInfoFromIdToken.getSub(); // 회원 고유 아이디
+                    String kakaoUserNumber = kakaoInfoFromIdToken.getSub();
                     String kakaoEmail = kakaoInfoFromIdToken.getEmail();
-                    // TODO : 카카오 비즈 앱 신청하고 name으로 변경 필요
-                    String kakaoNickname = kakaoInfoFromIdToken.getNickname();
 
                     return doesUserExistOurService(kakaoUserNumber)
                             .flatMap(isOurService -> {
                                 if (isOurService) {
                                     SignupRes signupRes = new SignupRes();
-                                    String accessToken = jwtUtil.generateAccessToken(kakaoUserNumber, kakaoNickname);
+                                    String accessToken = jwtUtil.generateAccessToken(kakaoUserNumber, kakaoUserNumber);
 
                                     signupRes.setAccessToken(accessToken);
                                     signupRes.setOurMember(true);
@@ -75,7 +74,6 @@ public class OAuthService {
 
                                     newUserKakaoInfoRes.setKakaoUniqueId(kakaoUserNumber);
                                     newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
-                                    newUserKakaoInfoRes.setName(kakaoNickname);
                                     newUserKakaoInfoRes.setOurMember(false);
 
                                     return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
@@ -179,7 +177,6 @@ public class OAuthService {
 
             User newUser = new User();
             newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
-            newUser.setName(userInfo.getName());
             newUser.setNickname(userInfo.getNickname());
             newUser.setEmail(userInfo.getEmail());
             newUser.setPassword(encodedPassword);
