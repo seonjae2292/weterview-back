@@ -10,10 +10,6 @@ public class SignupInfoDto {
     private String kakaoUserNumber;
 
     @NotBlank
-    @Pattern(regexp = "^[가-힣]{2,10}$", message = "The name must be 2 to 10 Korean characters.")
-    private String name;
-
-    @NotBlank
     @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,30}$", message = "Nickname must be 2 to 30 characters long and contain only Korean letters, English letters, or digits.")
     private String nickname;
 

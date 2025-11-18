@@ -29,9 +29,6 @@ public class User {
     @Column(name = "kakao_email", length = 100)
     private String email;
 
-    @Column(name = "password", length = 100)
-    private String password;
-
     @Column(name = "created_at", updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
