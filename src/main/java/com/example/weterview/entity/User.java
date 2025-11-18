@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-/// weterview에 가입한 사용자 테이블
 @Entity
 @Data
 @Table(name = "users")
@@ -24,23 +23,14 @@ public class User {
     @Column(name = "kakao_user_number")
     private String kakaoUserNumber;
 
-    @Column(name = "kakao_auth_time")
-    private Integer kakaoAuthTime;
-
-    @Column(name = "name", length = 100)
-    private String name;
-
     @Column(name = "nickname", length = 100)
     private String nickname;
 
-    @Column(name = "email", length = 100)
+    @Column(name = "kakao_email", length = 100)
     private String email;
 
     @Column(name = "password", length = 100)
     private String password;
-
-    @Column(name = "profile_image")
-    private byte[] profileImage;
 
     @Column(name = "created_at", updatable = false)
     @CreatedDate
