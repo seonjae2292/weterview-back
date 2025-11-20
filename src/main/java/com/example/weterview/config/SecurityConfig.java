@@ -28,6 +28,7 @@ public class SecurityConfig {
     private static final String[] OAUTH_URL = {
             "/oauth/**",
             "/auth/**",
+            "/studygroup/get/**",
     };
 
     private static final String[] SWAGGER_URL = {
