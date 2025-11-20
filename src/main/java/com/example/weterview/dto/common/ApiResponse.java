@@ -29,6 +29,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(HttpStatus.NOT_FOUND, message, data);
     }
 
+    public static <T> ApiResponse<T> NOT_FOUND(String message) {
+        return new ApiResponse<>(HttpStatus.NOT_FOUND, message, null);
+    }
+
     public static <T> ApiResponse<T> BAD_REQUEST(T data, String message) {
         return new ApiResponse<>(HttpStatus.BAD_REQUEST, message, data);
     }
