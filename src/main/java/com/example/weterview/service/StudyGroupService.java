@@ -105,6 +105,8 @@ public class StudyGroupService {
                 .startDate(studyGroup.getStartDate())
                 .endDate(studyGroup.getEndDate())
                 .location(studyGroup.getLocation())
+                .schedule(studyGroup.getSchedule())
+                .description(studyGroup.getDescription())
                 .joinCondition(studyGroup.getJoinCondition())
                 .contact(studyGroup.getContact())
                 .createdAt(studyGroup.getCreatedAt())
@@ -202,21 +204,23 @@ public class StudyGroupService {
         return ApiResponse.ok(null, "성공");
     }
 
+    // 댓글 조회
     public ApiResponse<List<GetCommentRes>> getComment(String studyGroupId) {
         List<StudyGroupComment> comments = studyGroupCommentRepository.findByStudyGroupId(Long.parseLong(studyGroupId));
 
-        if (comments.isEmpty()) {
-            throw new IllegalArgumentException("댓글없음");
+        List<GetCommentRes> result = List.of();
+
+        if (!comments.isEmpty()) {
+            result = comments.stream()
+                    .map(item ->
+                            new GetCommentRes(item.getContent(), item.getCreatedAt(), item.getUser().getNickname()))
+                    .toList();
         }
 
-        List<GetCommentRes> result = comments.stream()
-                .map(item ->
-                        new GetCommentRes(item.getContent(), item.getCreatedAt(), item.getUser().getNickname()))
-                .toList();
-
-        return ApiResponse.ok(result, "성공");
+        return ApiResponse.ok(result, "댓글 조회 성공");
     }
 
+    // 좋아요
     public ApiResponse<?> likeStudyGroup(String studyGroupId, String jwt) {
         String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
 
@@ -276,14 +280,6 @@ public class StudyGroupService {
         return ApiResponse.ok(null, "성공");
     }
 
-    public Pageable createPageable(GetStudyGroupReq req) {
-        return PageRequest.of(
-                req.getPageNumber() - 1,
-                req.getPageSize(),
-                Sort.by("id").ascending()
-        );
-    }
-
     private Specification<StudyGroup> buildSpecification(GetStudyGroupReq req) {
         return Stream.of(
                         Optional.ofNullable(req.getField())
@@ -341,4 +337,11 @@ public class StudyGroupService {
         return ApiResponse.ok(userList, "success");
     }
 
+    public Pageable createPageable(GetStudyGroupReq req) {
+        return PageRequest.of(
+                req.getPageNumber() - 1,
+                req.getPageSize(),
+                Sort.by("id").ascending()
+        );
+    }
 }
