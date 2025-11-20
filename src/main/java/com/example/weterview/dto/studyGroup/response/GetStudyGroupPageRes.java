@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class GetStudyGroupPageRes {
+    private long id;
     private FieldEnum field;
     private StatusEnum status;
     private String title;
