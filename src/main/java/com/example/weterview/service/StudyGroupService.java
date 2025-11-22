@@ -6,7 +6,9 @@ import com.example.weterview.dto.studyGroup.response.GetCommentRes;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupDetailRes;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
 import com.example.weterview.entity.*;
+import com.example.weterview.entity.StudyGroupMember;
 import com.example.weterview.enums.studyGroup.StatusEnum;
+import com.example.weterview.enums.studyMembership.JoinEnum;
 import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class StudyGroupService {
     private final UserRepository userRepository;
     private final StudyGroupCommentRepository studyGroupCommentRepository;
     private final StudyGroupLikeRepository studyGroupLikeRepository;
+    private final StudyGroupMemberRepository studyGroupMemberRepository;
 
     private final JwtUtil jwtUtil;
 
@@ -262,7 +265,6 @@ public class StudyGroupService {
         return ApiResponse.ok(null, "좋이요 취소 성공");
     }
 
-    // 토큰 -> 토큰의 subject에서 kakaoUserNumber 추출 -> 존재하는 번호인지 확인 -> 성공
     public ApiResponse<?> joinStudyGroup(String studyGroupId, String jwt) {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId)).orElseThrow(() ->
                 new IllegalArgumentException("없는 스터디 그룹 게시글 입니다."));
@@ -272,16 +274,17 @@ public class StudyGroupService {
                 new IllegalArgumentException("존재하지 않는 사용자 입니다."));
 
         // 이미 신청한 사용자 인지 검증
-        boolean isAlreadyMember = studyMembershipRepository.findByStudyGroupIdAndUserId(studyGroup, user).isPresent();
-        if (isAlreadyMember) {
-            return ApiResponse.BAD_REQUEST(null, "이미 신청한 사용자 입니다.");
+        Optional<StudyGroupMember> studyGroupMember = studyGroupMemberRepository.findStudyGroupMemberByUser(user);
+        if (studyGroupMember.isPresent()) {
+            return ApiResponse.ok(null, "이미 신청한 사용자입니다.");
         }
 
-        StudyMembership studyMembership = new StudyMembership();
-        studyMembership.setStudyGroup(studyGroup);
-        studyMembership.setUser(user);
+        StudyGroupMember studyGroupMemberObj = new StudyGroupMember();
+        studyGroupMemberObj.setUser(user);
+        studyGroupMemberObj.setStudyGroup(studyGroup);
+        studyGroupMemberObj.setJoin(JoinEnum.APPLY);
 
-        studyMembershipRepository.save(studyMembership);
+        studyGroupMemberRepository.save(studyGroupMemberObj);
 
         return ApiResponse.ok(null, "성공");
     }
