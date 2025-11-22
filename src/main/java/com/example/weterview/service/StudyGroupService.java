@@ -263,8 +263,8 @@ public class StudyGroupService {
     }
 
     // 토큰 -> 토큰의 subject에서 kakaoUserNumber 추출 -> 존재하는 번호인지 확인 -> 성공
-    public ApiResponse<?> joinStudyGroup(JoinStudyGroupReq req, String jwt) {
-        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(req.getStudyGroupId())).orElseThrow(() ->
+    public ApiResponse<?> joinStudyGroup(String studyGroupId, String jwt) {
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId)).orElseThrow(() ->
                 new IllegalArgumentException("없는 스터디 그룹 게시글 입니다."));
 
         String kakaoUserNumber  = jwtUtil.getKakaoUserNumFromToken(jwt);
