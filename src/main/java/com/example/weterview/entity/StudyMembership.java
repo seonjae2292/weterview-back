@@ -5,9 +5,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
 
-/// 스터디 그룹 게시글에 참여한 사용자 테이블
 @Entity
 @Table(name = "study_membership")
+@Comment(value = "사용자가 생성한 스터디 그룹 게시글 매핑 테이블")
 @Data
 public class StudyMembership {
     @Id
@@ -25,16 +25,4 @@ public class StudyMembership {
     @ManyToOne
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    @Comment( value = "참가요청 or 수락 or 거절")
-    private JoinEnum join;
-
-    @PrePersist
-    public void setDefaultJoinStatus() {
-        if (this.join == null) {
-            this.join = JoinEnum.REQUEST;
-        }
-    }
 }

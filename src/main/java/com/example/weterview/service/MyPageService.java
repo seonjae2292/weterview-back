@@ -99,7 +99,6 @@ public class MyPageService {
                 studyMembershipRepository.findById(Long.parseLong(studyGroupId))
                         .orElseThrow(() -> new IllegalArgumentException("개설되지 않은 스터디 그룹 입니다."));
 
-        studyMembership.setJoin(JoinEnum.ACCEPT);
 
         studyMembershipRepository.save(studyMembership);
 
@@ -112,7 +111,6 @@ public class MyPageService {
                 studyMembershipRepository.findById(Long.parseLong(studyGroupId))
                 .orElseThrow(() -> new IllegalArgumentException("개설되지 않은 스터디 그룹 입니다."));
 
-        studyMembership.setJoin(JoinEnum.REFUSE);
 
         studyMembershipRepository.save(studyMembership);
 

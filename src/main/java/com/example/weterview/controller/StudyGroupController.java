@@ -48,11 +48,11 @@ public class StudyGroupController {
     }
 
     // 스터디 그룹 참여 신청
-    @PostMapping("/join")
+    @PostMapping("/join/{studyGroupId}")
     public ApiResponse<?> joinStudyGroup(
-            @RequestBody JoinStudyGroupReq req,
+            @PathVariable String studyGroupId,
             @RequestHeader("Authorization") String jwt) {
-        return studyGroupService.joinStudyGroup(req, jwt);
+        return studyGroupService.joinStudyGroup(studyGroupId, jwt);
     }
 
     // 댓글 추가
