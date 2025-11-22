@@ -42,10 +42,10 @@ public class MyPageController {
     @GetMapping("/hosted-study-groups")
     public ApiResponse<List<GetHostedStudyGroupRes>> getHostedStudyGroups(
             @RequestHeader("Authorization") String jwt,
-            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
-        return myPageService.getHostedStudyGroups(jwt, pageNumber, pageSize);
+        return myPageService.getHostedStudyGroups(jwt, pageNumber - 1, pageSize);
     }
 
     // 내가 참여한 스터디 그룹 모집 게시글 조회
