@@ -62,14 +62,13 @@ public class MyPageService {
     }
 
     // 내가 개설한 스터디 그룹 모집 게시글 조회
-    public ApiResponse<List<GetHostedStudyGroupRes>> getHostedStudyGroups(String jwt, int pageNumber, int pageSize) {
+    public ApiResponse<List<GetHostedStudyGroupRes>> getHostedStudyGroups(
+            String jwt, int pageNumber, int pageSize) {
         String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
-        User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
-                .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
-                Sort.by("createdAt").descending());
-        Page<StudyGroup> hostedStudyGroupPage = studyGroupRepository.findByUser(user, pageable);
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<StudyGroup> hostedStudyGroupPage = studyGroupRepository.findByKakaonum(kakaoUniqueNumber, pageable);
 
         // 정적 팩토리 메서드 방식
         Page<GetHostedStudyGroupRes> result = hostedStudyGroupPage.map(GetHostedStudyGroupRes::from);
