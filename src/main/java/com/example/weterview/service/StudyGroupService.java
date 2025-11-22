@@ -48,6 +48,7 @@ public class StudyGroupService {
                     .orElseThrow(() -> new IllegalArgumentException("username에 해당하는 사용자가 존재하지 않습니다."));
 
             StudyGroup studyGroup = new StudyGroup();
+            StudyMembership studyMembership = new StudyMembership();
 
             studyGroup.setUser(user);
             studyGroup.setField(req.getField());
@@ -64,6 +65,11 @@ public class StudyGroupService {
             studyGroup.setContact(req.getContact());
 
             studyGroupRepository.save(studyGroup);
+
+            studyMembership.setUser(user);
+            studyMembership.setStudyGroup(studyGroup);
+
+            studyMembershipRepository.save(studyMembership);
 
             return ApiResponse.ok(null, "스터디 그룹을 생성했습니다");
         } catch (Exception e) {
