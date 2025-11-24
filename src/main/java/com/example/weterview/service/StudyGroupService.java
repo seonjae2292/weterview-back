@@ -3,6 +3,7 @@ package com.example.weterview.service;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.GetCommentRes;
+import com.example.weterview.dto.studyGroup.response.GetStudyGroupApplyMemberRes;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupDetailRes;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
 import com.example.weterview.entity.*;
@@ -22,7 +23,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Array;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -332,18 +335,28 @@ public class StudyGroupService {
         return ApiResponse.ok(result, "Success");
     }
 
-    /// 스터디 그룹 신청자 조회
-    /// 스터디 그룹에 어떤 사용자들이 신청했는지 조회
-    /// 스터디 그룹 상세 정보에서 자신이 개설한 정보 확인
-    public ApiResponse<List<User>> getAppliedStudyGroup(String studyGroupId) {
-        /// 2. 스터디 그룹 멤버십 테이블에서 정보 조회
-        /// 특정 스터디 그룹에 속해 있는 사용자 목록 데이터
-        List<User> userList =
-                studyMembershipRepository
-                        .findByStudyGroupId(Long.valueOf(studyGroupId))
-                        .orElseThrow(() -> new IllegalArgumentException("해당 스터디 그룹에 속한 사용자가 없습니다."));
+    public ApiResponse<List<GetStudyGroupApplyMemberRes>> getAppliedStudyGroup(String studyGroupId) {
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+                .orElseThrow(() -> new IllegalArgumentException(studyGroupId + "에 해당하는 게시글이 없습니다."));
+        List<StudyGroupMember> studyGroupMembers =
+                studyGroupMemberRepository.findStudyGroupMembersListByStudyGroup(studyGroup)
+                        .orElseThrow(() -> new IllegalArgumentException(studyGroup.getId() + "에 신청/참여한 사용자가 없습니다."));
 
-        return ApiResponse.ok(userList, "success");
+        List<GetStudyGroupApplyMemberRes> applyMemberList = new ArrayList<>();
+        for (int i = 0; i < studyGroupMembers.size(); i++) {
+            GetStudyGroupApplyMemberRes applyMember = new GetStudyGroupApplyMemberRes();
+            applyMember.setUserId(studyGroupMembers.get(i).getUser().getId());
+            applyMember.setNickname(studyGroupMembers.get(i).getUser().getNickname());
+            applyMember.setGender(studyGroupMembers.get(i).getUser().getGender());
+            applyMember.setKakaoEmail(studyGroupMembers.get(i).getUser().getKakaoEmail());
+            applyMember.setKakaoUserNumber(studyGroupMembers.get(i).getUser().getKakaoUserNumber());
+            applyMember.setCreatedAt(studyGroupMembers.get(i).getUser().getCreatedAt());
+            applyMember.setStatus(studyGroupMembers.get(i).getJoin().toString());
+
+            applyMemberList.add(applyMember);
+        }
+
+        return ApiResponse.ok(applyMemberList, studyGroupId + "에 신청한 사용자 정보 목록입니다.");
     }
 
     public Pageable createPageable(GetStudyGroupReq req) {
