@@ -71,14 +71,16 @@ public class MyPageController {
     }
 
     // 스터디 그룹 신청 수락
-    @PostMapping("/accept/{studyGroupId}")
-    public ApiResponse<?> acceptJoinStudyGroup(@PathVariable String studyGroupId) {
-        return myPageService.acceptJoinStudyGroup(studyGroupId);
+    @PostMapping("/accept/{userId}/{studyGroupId}")
+    public ApiResponse<?> acceptJoinStudyGroup(
+            @PathVariable Long userId, @PathVariable String studyGroupId) {
+        return myPageService.acceptJoinStudyGroup(userId, studyGroupId);
     }
 
     // 스터디 그룹 신청 거절
-    @PostMapping("/reject/{studyGroupId}")
-    public ApiResponse<?> rejectJoinStudyGroup(@PathVariable String studyGroupId) {
-        return myPageService.rejectJoinStudyGroup(studyGroupId);
+    @PostMapping("/reject/{userId}/{studyGroupId}")
+    public ApiResponse<?> rejectJoinStudyGroup(
+            @PathVariable Long userId, @PathVariable String studyGroupId) {
+        return myPageService.rejectJoinStudyGroup(userId, studyGroupId);
     }
 }
