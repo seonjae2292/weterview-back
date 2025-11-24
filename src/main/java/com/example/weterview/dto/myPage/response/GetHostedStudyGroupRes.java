@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @RequiredArgsConstructor
 public class GetHostedStudyGroupRes {
+    private Long studyGroupId;
     private String title;
     private String subTitle;
     private String description;
@@ -37,6 +38,7 @@ public class GetHostedStudyGroupRes {
     // 이 생성자의 "생성"의 목적을 더 명확하게 나타내는 방법
     public static GetHostedStudyGroupRes from(StudyGroup entity) {
         GetHostedStudyGroupRes dto = new GetHostedStudyGroupRes();
+        dto.studyGroupId = entity.getId();
         dto.title = entity.getTitle();
         dto.subTitle = entity.getSubTitle();
         dto.description = entity.getDescription();

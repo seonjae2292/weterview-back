@@ -6,9 +6,11 @@ import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
 import com.example.weterview.dto.myPage.response.GetJoinedStudyGroupRes;
 import com.example.weterview.dto.myPage.response.GetMyPageInfoRes;
 import com.example.weterview.entity.StudyGroup;
+import com.example.weterview.entity.StudyGroupMember;
 import com.example.weterview.entity.StudyMembership;
 import com.example.weterview.entity.User;
 import com.example.weterview.enums.studyMembership.JoinEnum;
+import com.example.weterview.repository.StudyGroupMemberRepository;
 import com.example.weterview.repository.StudyGroupRepository;
 import com.example.weterview.repository.StudyMembershipRepository;
 import com.example.weterview.repository.UserRepository;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,7 +31,7 @@ public class MyPageService {
     private final UserRepository userRepository;
     private final StudyGroupRepository studyGroupRepository;
     private final StudyMembershipRepository studyMembershipRepository;
-
+    private final StudyGroupMemberRepository studyGroupMemberRepository;
     private final JwtUtil jwtUtil;
 
     // 사용자 mypage 정보 가져오기
@@ -94,25 +97,39 @@ public class MyPageService {
     };
 
     /// 스터디 그룹 신청 수락
-    public ApiResponse<?> acceptJoinStudyGroup(String studyGroupId) {
-        StudyMembership studyMembership =
-                studyMembershipRepository.findById(Long.parseLong(studyGroupId))
-                        .orElseThrow(() -> new IllegalArgumentException("개설되지 않은 스터디 그룹 입니다."));
+    public ApiResponse<?> acceptJoinStudyGroup(Long userId, String studyGroupId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디 그룹 ID 입니다."));
 
+        StudyGroupMember studyGroupMember =
+                studyGroupMemberRepository.findStudyGroupMemberByUserAndStudyGroup(user, studyGroup)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않습니다"));
 
-        studyMembershipRepository.save(studyMembership);
+        studyGroupMember.setJoin(JoinEnum.ACCEPT);
+        studyGroupMember.setAcceptedAt(LocalDateTime.now());
+
+        studyGroupMemberRepository.save(studyGroupMember);
 
         return ApiResponse.ok("승인했습니다.");
     }
 
     /// 스터디 그룹 신청 거절
-    public ApiResponse<?> rejectJoinStudyGroup(String studyGroupId) {
-        StudyMembership studyMembership =
-                studyMembershipRepository.findById(Long.parseLong(studyGroupId))
-                .orElseThrow(() -> new IllegalArgumentException("개설되지 않은 스터디 그룹 입니다."));
+    public ApiResponse<?> rejectJoinStudyGroup(Long userId, String studyGroupId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
+        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디 그룹 ID 입니다."));
 
+        StudyGroupMember studyGroupMember =
+                studyGroupMemberRepository.findStudyGroupMemberByUserAndStudyGroup(user, studyGroup)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않습니다"));
 
-        studyMembershipRepository.save(studyMembership);
+        studyGroupMember.setJoin(JoinEnum.REFUSE);
+        studyGroupMember.setRefusedAt(LocalDateTime.now());
+
+        studyGroupMemberRepository.save(studyGroupMember);
 
         return ApiResponse.ok("거절했습니다");
     }
