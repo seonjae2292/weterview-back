@@ -78,22 +78,19 @@ public class MyPageService {
         return ApiResponse.ok(result.getContent(), "자신이 개설한 스터디 그룹 조회");
     }
 
-    // TODO : 개선해야하는 부분
     // 내가 참여한 스터디 그룹 모집 게시글 조회
-    public ApiResponse<?> getJoinedStudyGroups(String jwt, int pageNumber, int pageSize) {
+    public ApiResponse<Page<GetJoinedStudyGroupRes>> getJoinedStudyGroups(String jwt, int pageNumber, int pageSize) {
         String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
         User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
                 .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
-                Sort.by("createdAt").descending());
+                Sort.by(Sort.Direction.DESC, "appliedAt"));
 
-        // 쿼리 한번
-        Page<StudyGroup> joinedStudyGroupList = studyMembershipRepository
-                .findByUserWithStudyGroup(user, pageable);
+        Page<StudyGroupMember> members = studyGroupMemberRepository.findStudyGroupMembersByUser(user, pageable);
 
-        Page<GetJoinedStudyGroupRes> result = joinedStudyGroupList.map(GetJoinedStudyGroupRes::from);
-        return ApiResponse.ok(result.getContent(), "자신이 참여한 스터디 그룹 조회");
+        Page<GetJoinedStudyGroupRes> result = members.map(GetJoinedStudyGroupRes::from);
+        return ApiResponse.ok(result, "자신이 참여한 스터디 그룹 조회");
     };
 
     /// 스터디 그룹 신청 수락
