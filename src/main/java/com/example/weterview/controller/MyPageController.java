@@ -52,9 +52,9 @@ public class MyPageController {
     @GetMapping("/joined-study-groups")
     public ApiResponse<?> getJoinedStudyGroups(
             @RequestHeader("Authorization") String jwt,
-            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        return myPageService.getJoinedStudyGroups(jwt, pageNumber, pageSize);
+        return myPageService.getJoinedStudyGroups(jwt, pageNumber - 1, pageSize);
     }
 
     // 스터디 그룹 상세 정보 조회
