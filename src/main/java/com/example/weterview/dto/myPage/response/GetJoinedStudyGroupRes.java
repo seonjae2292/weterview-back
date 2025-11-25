@@ -5,15 +5,14 @@ import com.example.weterview.entity.StudyGroupMember;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
-@RequiredArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class GetJoinedStudyGroupRes {
     private Long studyGroupId;
     private String title;
