@@ -2,10 +2,7 @@ package com.example.weterview.service;
 
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
-import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
-import com.example.weterview.dto.myPage.response.GetJoinedStudyGroupRes;
-import com.example.weterview.dto.myPage.response.GetLikedPostRes;
-import com.example.weterview.dto.myPage.response.GetMyPageInfoRes;
+import com.example.weterview.dto.myPage.response.*;
 import com.example.weterview.entity.*;
 import com.example.weterview.enums.studyMembership.JoinEnum;
 import com.example.weterview.repository.*;
@@ -25,9 +22,9 @@ import java.util.List;
 public class MyPageService {
     private final UserRepository userRepository;
     private final StudyGroupRepository studyGroupRepository;
-    private final StudyMembershipRepository studyMembershipRepository;
     private final StudyGroupMemberRepository studyGroupMemberRepository;
     private final StudyGroupLikeRepository studyGroupLikeRepository;
+    private final StudyGroupCommentRepository studyGroupCommentRepository;
     private final JwtUtil jwtUtil;
 
     // 사용자 mypage 정보 가져오기
@@ -140,6 +137,23 @@ public class MyPageService {
                 studyGroupLikeRepository.findStudyGroupLikesByUser(user, pageable);
 
         Page<GetLikedPostRes> result = studyGroupLikes.map(GetLikedPostRes::from);
+
+        return ApiResponse.ok(result, "success");
+    }
+
+    // 댓글단 게시글 조회
+    public ApiResponse<Page<GetCommentedStudyGroupRes>> getCommentedPost(String jwt, int pageNumber, int pageSize) {
+        String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
+        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<StudyGroupComment> studyGroupComments =
+                studyGroupCommentRepository.findStudyGroupCommentsByUser(user, pageable);
+
+        Page<GetCommentedStudyGroupRes> result = studyGroupComments.map(GetCommentedStudyGroupRes::from);
 
         return ApiResponse.ok(result, "success");
     }
