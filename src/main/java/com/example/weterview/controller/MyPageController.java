@@ -83,4 +83,13 @@ public class MyPageController {
             @PathVariable Long userId, @PathVariable String studyGroupId) {
         return myPageService.rejectJoinStudyGroup(userId, studyGroupId);
     }
+
+    // 좋아요한 게시글 조회
+    @GetMapping("/likes/posts")
+    public ApiResponse<?> getLikePost(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        return myPageService.getLikePost(jwt, pageNumber - 1, pageSize);
+    }
 }
