@@ -4,16 +4,11 @@ import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
 import com.example.weterview.dto.myPage.response.GetJoinedStudyGroupRes;
+import com.example.weterview.dto.myPage.response.GetLikedPostRes;
 import com.example.weterview.dto.myPage.response.GetMyPageInfoRes;
-import com.example.weterview.entity.StudyGroup;
-import com.example.weterview.entity.StudyGroupMember;
-import com.example.weterview.entity.StudyMembership;
-import com.example.weterview.entity.User;
+import com.example.weterview.entity.*;
 import com.example.weterview.enums.studyMembership.JoinEnum;
-import com.example.weterview.repository.StudyGroupMemberRepository;
-import com.example.weterview.repository.StudyGroupRepository;
-import com.example.weterview.repository.StudyMembershipRepository;
-import com.example.weterview.repository.UserRepository;
+import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,6 +27,7 @@ public class MyPageService {
     private final StudyGroupRepository studyGroupRepository;
     private final StudyMembershipRepository studyMembershipRepository;
     private final StudyGroupMemberRepository studyGroupMemberRepository;
+    private final StudyGroupLikeRepository studyGroupLikeRepository;
     private final JwtUtil jwtUtil;
 
     // 사용자 mypage 정보 가져오기
@@ -129,5 +125,22 @@ public class MyPageService {
         studyGroupMemberRepository.save(studyGroupMember);
 
         return ApiResponse.ok("거절했습니다");
+    }
+
+    // 내가 좋아요한 게시글
+    public ApiResponse<?> getLikePost(String jwt, int pageNumber, int pageSize) {
+        String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
+        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<StudyGroupLike> studyGroupLikes =
+                studyGroupLikeRepository.findStudyGroupLikesByUser(user, pageable);
+
+        Page<GetLikedPostRes> result = studyGroupLikes.map(GetLikedPostRes::from);
+
+        return ApiResponse.ok(result, "success");
     }
 }
