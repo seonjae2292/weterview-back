@@ -64,6 +64,7 @@ public class MyPageController {
     }
 
     // 스터디 그룹 신청자 조회
+
     /// 스터디 그룹 상세 정보에서 자신이 개설한 정보 확인
     @GetMapping("/applied/list/{studyGroupId}")
     public ApiResponse<?> getAppliedStudyGroup(@PathVariable String studyGroupId) {
@@ -91,5 +92,14 @@ public class MyPageController {
             @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return myPageService.getLikePost(jwt, pageNumber - 1, pageSize);
+    }
+
+    // 댓글단 게시글 조회
+    @GetMapping("/commented/posts")
+    public ApiResponse<?> getCommentedPost(
+            @RequestHeader("Authorization") String jwt,
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "pageSzie", defaultValue = "10") int pageSize) {
+        return myPageService.getCommentedPost(jwt, pageNumber - 1, pageSize);
     }
 }
