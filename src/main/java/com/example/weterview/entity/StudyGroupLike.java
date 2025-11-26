@@ -26,6 +26,9 @@ public class StudyGroupLike {
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
 
+    @Column(name = "is_liked")
+    private boolean isLiked;
+
     @Column(name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;
