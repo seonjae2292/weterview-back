@@ -99,7 +99,7 @@ public class MyPageController {
     public ApiResponse<?> getCommentedPost(
             @RequestHeader("Authorization") String jwt,
             @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
-            @RequestParam(value = "pageSzie", defaultValue = "10") int pageSize) {
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return myPageService.getCommentedPost(jwt, pageNumber - 1, pageSize);
     }
 }
