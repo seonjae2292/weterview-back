@@ -29,4 +29,5 @@ public class GetStudyGroupByIdRes {
     private String contact;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean isLiked;
 }
