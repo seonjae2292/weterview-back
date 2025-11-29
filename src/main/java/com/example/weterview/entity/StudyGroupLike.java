@@ -26,10 +26,13 @@ public class StudyGroupLike {
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
 
+    @Column(name = "is_liked")
+    private boolean isLiked = false;
+
     @Column(name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

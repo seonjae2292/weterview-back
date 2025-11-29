@@ -3,6 +3,7 @@ package com.example.weterview.dto.studyGroup.request;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,4 +30,6 @@ public class GetStudyGroupByIdRes {
     private String contact;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    @JsonProperty("isLiked")
+    private boolean isLiked;
 }

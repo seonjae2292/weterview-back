@@ -1,12 +1,17 @@
 package com.example.weterview.controller;
 
+import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
+import com.example.weterview.entity.User;
 import com.example.weterview.service.StudyGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/studygroup")
 @RequiredArgsConstructor
@@ -29,8 +34,14 @@ public class StudyGroupController {
 
     // 스터디 그룹 모집 게시글 단건 조회
     @GetMapping("/get/{id}")
-    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(@PathVariable String id) {
-        return studyGroupService.getStudyGroupById(id);
+    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(
+            @PathVariable String id,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        User user = new User();
+        if (customUserDetails == null) {
+            user = null;
+        }
+        return studyGroupService.getStudyGroupById(id, user);
     }
 
     // 스터디 그룹 모집 게시글 수정
@@ -78,7 +89,7 @@ public class StudyGroupController {
     }
 
     // 스터디 그룹 모집 게시글 좋아요 취소
-    @DeleteMapping("/{studyGroupId}/likes")
+    @PostMapping("/{studyGroupId}/unlikes")
     public ApiResponse<?> unlikeStudyGroup(
             @PathVariable String studyGroupId,
             @RequestHeader("Authorization") String jwt){

@@ -102,9 +102,18 @@ public class StudyGroupService {
     }
 
     // 스터디 그룹 단일 조회
-    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(String id) {
+    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(String id, User user) {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(id))
                 .orElseThrow(() -> new IllegalArgumentException("없는 게시글 입니다."));
+
+        boolean isLiked = false;
+
+        if (user != null) {
+            Optional<StudyGroupLike> studyGroupLike = studyGroupLikeRepository.findByStudyGroupAndUser(studyGroup, user);
+            if (studyGroupLike.isPresent()) {
+                isLiked = studyGroupLike.get().isLiked();
+            }
+        }
 
         GetStudyGroupByIdRes getStudyGroupByIdRes = GetStudyGroupByIdRes.builder()
                 .id(studyGroup.getId().toString())
@@ -123,6 +132,7 @@ public class StudyGroupService {
                 .contact(studyGroup.getContact())
                 .createdAt(studyGroup.getCreatedAt())
                 .updatedAt(studyGroup.getUpdatedAt())
+                .isLiked(isLiked)
                 .build();
 
         return ApiResponse.ok(getStudyGroupByIdRes, "조회성공");
@@ -232,7 +242,7 @@ public class StudyGroupService {
         return ApiResponse.ok(result, "댓글 조회 성공");
     }
 
-    // 좋아요
+    // 게시글 좋아요
     public ApiResponse<?> likeStudyGroup(String studyGroupId, String jwt) {
         String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
 
@@ -241,16 +251,23 @@ public class StudyGroupService {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글 입니다."));
 
-        StudyGroupLike studyGroupLike = new StudyGroupLike();
-        studyGroupLike.setUser(user);
-        studyGroupLike.setStudyGroup(studyGroup);
+        Optional<StudyGroupLike> studyGroupLike = studyGroupLikeRepository.findByStudyGroupAndUser(studyGroup, user);
 
-        studyGroupLikeRepository.save(studyGroupLike);
+        if (studyGroupLike.isPresent()) {
+            studyGroupLike.get().setLiked(true);
+            studyGroupLikeRepository.save(studyGroupLike.get());
+        } else {
+            StudyGroupLike like = new StudyGroupLike();
+            like.setUser(user);
+            like.setStudyGroup(studyGroup);
+            like.setLiked(true);
+            studyGroupLikeRepository.save(like);
+        }
 
         return ApiResponse.ok(null, "좋아요 성공");
     }
 
-    // Soft Delete로 구현
+    // 게시글 좋아요 취소
     public ApiResponse<?> unlikeStudyGroup(String studyGroupId, String jwt) {
         String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
 
@@ -262,7 +279,8 @@ public class StudyGroupService {
         StudyGroupLike studyGroupLike = studyGroupLikeRepository.findByStudyGroupAndUser(studyGroup, user)
                 .orElseThrow(() -> new IllegalArgumentException("없는 게시글입니다."));
 
-        studyGroupLike.setDeletedAt(LocalDateTime.now());
+        studyGroupLike.setUpdatedAt(LocalDateTime.now());
+        studyGroupLike.setLiked(false);
         studyGroupLikeRepository.save(studyGroupLike);
 
         return ApiResponse.ok(null, "좋이요 취소 성공");
