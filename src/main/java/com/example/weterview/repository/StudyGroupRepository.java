@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long>,
         JpaSpecificationExecutor<StudyGroup> {
@@ -16,7 +18,7 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long>,
     // Users 엔티티에서 kakaonum으로 user id 조회
     // studygroupmembership에서 user id로 조회
     // 조회한 게시글 id로 studygroup에서 조회
-    @Query("SELECT sg FROM StudyGroup sg WHERE sg.id = (SELECT s.studyGroup.id FROM StudyMembership s WHERE s.user.id = (SELECT u.id FROM User u WHERE u.kakaoUserNumber = :kakaoNum))")
+    @Query("SELECT sg FROM StudyGroup sg WHERE sg.id IN (SELECT s.studyGroup.id FROM StudyMembership s WHERE s.user.id = (SELECT u.id FROM User u WHERE u.kakaoUserNumber = :kakaoNum))")
     Page<StudyGroup> findByKakaonum(@Param("kakaoNum") String kakaoNum, Pageable pageable);
 }
 
