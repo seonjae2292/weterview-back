@@ -27,7 +27,7 @@ public class StudyGroupLike {
     private StudyGroup studyGroup;
 
     @Column(name = "is_liked")
-    private boolean isLiked;
+    private boolean isLiked = false;
 
     @Column(name = "created_at")
     @CreatedDate
