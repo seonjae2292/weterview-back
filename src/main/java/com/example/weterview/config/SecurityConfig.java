@@ -1,5 +1,6 @@
 package com.example.weterview.config;
 
+import com.example.weterview.repository.UserRepository;
 import com.example.weterview.utils.JwtAuthenticationFilter;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
     private static final String[] OAUTH_URL = {
@@ -44,7 +46,7 @@ public class SecurityConfig {
      */
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtUtil);
+        return new JwtAuthenticationFilter(userRepository, jwtUtil);
     }
 
     /**
