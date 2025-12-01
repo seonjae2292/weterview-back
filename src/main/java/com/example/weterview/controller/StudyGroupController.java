@@ -38,8 +38,8 @@ public class StudyGroupController {
             @PathVariable String id,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         User user = new User();
-        if (customUserDetails == null) {
-            user = null;
+        if (customUserDetails != null) {
+            user = customUserDetails.getUser();
         }
         return studyGroupService.getStudyGroupById(id, user);
     }
