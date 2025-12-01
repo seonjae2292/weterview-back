@@ -33,7 +33,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+//	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -45,4 +46,14 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+//plain.jar 생기지 않게
+tasks.named('jar') {
+	enabled = false
+}
+
+// 빌드할 때 제외
+bootJar {
+	rootSpec.exclude("**/dev-secret.yml")
 }
