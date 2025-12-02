@@ -15,5 +15,5 @@ import java.util.Optional;
 public interface StudyGroupLikeRepository extends JpaRepository<StudyGroupLike, Long> {
     Optional<StudyGroupLike> findByStudyGroupAndUser(StudyGroup studyGroup, User user);
 
-    Page<StudyGroupLike> findStudyGroupLikesByUser(User user, Pageable pageable);
+    Page<StudyGroupLike> findByUserAndIsLiked(User user, boolean isLiked, Pageable pageable);
 }

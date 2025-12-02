@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
 
 /// 스터디 그룹 게시글 좋아요 테이블
 @Entity
-@Table(name = "study_group_likes")
+@Table(name = "study_group_likes", indexes = {
+        @Index(name = "idx_user_liked_created", columnList = "user_id, is_liked, created_at")
+})
 @EntityListeners(AuditingEntityListener.class)
 @Data
 public class StudyGroupLike {
