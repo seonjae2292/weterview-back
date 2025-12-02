@@ -134,7 +134,7 @@ public class MyPageService {
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<StudyGroupLike> studyGroupLikes =
-                studyGroupLikeRepository.findStudyGroupLikesByUser(user, pageable);
+                studyGroupLikeRepository.findByUserAndIsLiked(user, true, pageable);
 
         Page<GetLikedPostRes> result = studyGroupLikes.map(GetLikedPostRes::from);
 
