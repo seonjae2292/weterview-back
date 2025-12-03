@@ -92,7 +92,16 @@ public class StudyGroupController {
     @PostMapping("/{studyGroupId}/unlikes")
     public ApiResponse<?> unlikeStudyGroup(
             @PathVariable String studyGroupId,
-            @RequestHeader("Authorization") String jwt){
+            @RequestHeader("Authorization") String jwt) {
         return studyGroupService.unlikeStudyGroup(studyGroupId, jwt);
+    }
+
+    // 인기있는 스터디 그룹 조회
+    @GetMapping("/popular")
+    public ApiResponse<?> getPopularStudyGroup(
+            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
+    ) {
+        return studyGroupService.getPopularStudyGroup(pageNumber - 1, pageSize);
     }
 }

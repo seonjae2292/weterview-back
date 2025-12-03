@@ -384,4 +384,16 @@ public class StudyGroupService {
                 Sort.by("id").ascending()
         );
     }
+
+    // 인기있는 스터디 그룹 조회
+    public ApiResponse<Page<GetStudyGroupPageRes>> getPopularStudyGroup(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<StudyGroup> popularStudyGroup =
+                studyGroupRepository.findPopularByApplicationCount(StatusEnum.RECRUITING, pageable);
+
+        Page<GetStudyGroupPageRes> result = popularStudyGroup.map(GetStudyGroupPageRes::from);
+        return ApiResponse.ok(result, "인기있는 스터디 그룹 게시글 조회 성공");
+    }
 }
