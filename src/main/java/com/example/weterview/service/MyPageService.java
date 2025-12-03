@@ -8,6 +8,7 @@ import com.example.weterview.enums.studyMembership.JoinEnum;
 import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
@@ -28,12 +30,7 @@ public class MyPageService {
     private final JwtUtil jwtUtil;
 
     // 사용자 mypage 정보 가져오기
-    public ApiResponse<GetMyPageInfoRes> getMyPageInfo(String jwt) {
-        // 카카로 고유 number
-        String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
-        User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
-                .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다."));
-
+    public ApiResponse<GetMyPageInfoRes> getMyPageInfo(User user) {
         GetMyPageInfoRes getMyPageInfoRes = new GetMyPageInfoRes();
         getMyPageInfoRes.setCreatedAt(user.getCreatedAt());
         getMyPageInfoRes.setUpdatedAt(user.getUpdatedAt());
