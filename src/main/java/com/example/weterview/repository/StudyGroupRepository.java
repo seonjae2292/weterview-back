@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long>,
@@ -30,5 +31,8 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long>,
             "GROUP BY s " +
             "ORDER BY COUNT(m) DESC, s.createdAt DESC")
     Page<StudyGroup> findPopularByApplicationCount(@Param("status") StatusEnum status, Pageable pageable);
+
+    @Query("select sg from StudyGroup sg where sg.status = :status order by sg.createdAt DESC")
+    List<StudyGroup> findLatestByStatus(@Param("status") StatusEnum status, Pageable pageable);
 }
 

@@ -3,6 +3,7 @@ package com.example.weterview.controller;
 import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
+import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
 import com.example.weterview.entity.User;
 import com.example.weterview.service.StudyGroupService;
 import jakarta.validation.Valid;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -99,9 +102,16 @@ public class StudyGroupController {
     // 인기있는 스터디 그룹 조회
     @GetMapping("/popular")
     public ApiResponse<?> getPopularStudyGroup(
-            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
         return studyGroupService.getPopularStudyGroup(pageNumber - 1, pageSize);
+    }
+
+    // 최신 스터디 그룹 조회
+    @GetMapping("/latest")
+    public ApiResponse<List<GetStudyGroupPageRes>> getLatestStudyGroup(
+            @RequestParam(value = "count", defaultValue = "3") int count) {
+        return studyGroupService.getLatestStudyGroup(count);
     }
 }

@@ -396,4 +396,18 @@ public class StudyGroupService {
         Page<GetStudyGroupPageRes> result = popularStudyGroup.map(GetStudyGroupPageRes::from);
         return ApiResponse.ok(result, "인기있는 스터디 그룹 게시글 조회 성공");
     }
+
+    // 최신 스터디 그룹 조회
+    public ApiResponse<List<GetStudyGroupPageRes>> getLatestStudyGroup(int count) {
+        Pageable pageable = PageRequest.of(0, count);
+
+        List<StudyGroup> latestStudyGroup =
+                studyGroupRepository.findLatestByStatus(StatusEnum.RECRUITING, pageable);
+
+        List<GetStudyGroupPageRes> result = latestStudyGroup.stream()
+                .map(GetStudyGroupPageRes::from)
+                .toList();
+
+        return ApiResponse.ok(result, "최신 스터디 그룹 게시글 조회 성공");
+    }
 }
