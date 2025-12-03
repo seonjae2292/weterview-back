@@ -31,7 +31,8 @@ public class SecurityConfig {
             "/oauth/**",
             "/auth/**",
             "/studygroup/get/**",
-            "/studygroup/popular"
+            "/studygroup/popular",
+            "/studygroup/latest"
     };
 
     private static final String[] SWAGGER_URL = {
