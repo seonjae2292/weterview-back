@@ -1,5 +1,7 @@
 package com.example.weterview.dto.studyGroup.response;
 
+import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
+import com.example.weterview.entity.StudyGroup;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
@@ -23,4 +25,24 @@ public class GetStudyGroupPageRes {
     private Integer totalNumber;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    public static GetStudyGroupPageRes from(StudyGroup entity) {
+        GetStudyGroupPageRes dto = new GetStudyGroupPageRes();
+        dto.id = entity.getId();
+        dto.title = entity.getTitle();
+        dto.subTitle = entity.getSubTitle();
+        dto.description = entity.getDescription();
+
+        dto.recruitingNumber = entity.getRecruitingNumber();
+        dto.totalNumber = entity.getTotalNumber();
+
+        dto.field = entity.getField();
+        dto.status = entity.getStatus();
+        dto.location = entity.getLocation();
+
+        dto.startDate = entity.getStartDate();
+        dto.endDate = entity.getEndDate();
+
+        return dto;
+    }
 }
