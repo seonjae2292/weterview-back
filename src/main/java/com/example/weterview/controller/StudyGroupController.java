@@ -40,11 +40,7 @@ public class StudyGroupController {
     public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(
             @PathVariable String id,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        User user = new User();
-        if (customUserDetails != null) {
-            user = customUserDetails.getUser();
-        }
-        return studyGroupService.getStudyGroupById(id, user);
+        return studyGroupService.getStudyGroupById(id, customUserDetails.getUser());
     }
 
     // 스터디 그룹 모집 게시글 수정
