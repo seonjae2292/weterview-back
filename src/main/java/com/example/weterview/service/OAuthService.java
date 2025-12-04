@@ -175,12 +175,12 @@ public class OAuthService {
         if (isMember) {
             return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
         } else {
-            User newUser = new User();
-
-            newUser.setKakaoUserNumber(userInfo.getKakaoUserNumber());
-            newUser.setNickname(userInfo.getNickname());
-            newUser.setGender(userInfo.getGender());
-            newUser.setKakaoEmail(userInfo.getKakaoEmail());
+            User newUser = User.builder()
+                    .kakaoUserNumber(userInfo.getKakaoUserNumber())
+                    .nickname(userInfo.getNickname())
+                    .gender(userInfo.getGender())
+                    .kakaoEmail(userInfo.getKakaoEmail())
+                    .build();
 
             userRepository.save(newUser);
 
