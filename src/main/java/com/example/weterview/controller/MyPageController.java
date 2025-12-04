@@ -4,8 +4,7 @@ import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
-import com.example.weterview.dto.myPage.response.GetMyPageInfoRes;
-import com.example.weterview.entity.User;
+import com.example.weterview.dto.myPage.response.MyPageRes;
 import com.example.weterview.service.MyPageService;
 import com.example.weterview.service.StudyGroupService;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +24,10 @@ public class MyPageController {
     private final StudyGroupService studyGroupService;
 
     @GetMapping("/info")
-    public ApiResponse<GetMyPageInfoRes> getMyPageInfo(
+    public ApiResponse<MyPageRes> getMyPageInfo(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return myPageService.getMyPageInfo(customUserDetails.getUser());
+        MyPageRes response = myPageService.getMyPageInfo(customUserDetails.getUser());
+        return ApiResponse.ok(response, "사용자 정보 반환");
     }
 
     // TODO : 추후 S3 적용하여 변경
