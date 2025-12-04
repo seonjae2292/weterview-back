@@ -30,15 +30,8 @@ public class MyPageService {
     private final JwtUtil jwtUtil;
 
     // 사용자 mypage 정보 가져오기
-    public ApiResponse<GetMyPageInfoRes> getMyPageInfo(User user) {
-        GetMyPageInfoRes getMyPageInfoRes = new GetMyPageInfoRes();
-        getMyPageInfoRes.setCreatedAt(user.getCreatedAt());
-        getMyPageInfoRes.setUpdatedAt(user.getUpdatedAt());
-        getMyPageInfoRes.setKakaoEmail(user.getKakaoEmail());
-        getMyPageInfoRes.setNickname(user.getNickname());
-        getMyPageInfoRes.setGender(user.getGender());
-
-        return ApiResponse.ok(getMyPageInfoRes, "사용자 정보 반환");
+    public MyPageRes getMyPageInfo(User user) {
+        return MyPageRes.from(user);
     }
 
     // 닉네임 변경
