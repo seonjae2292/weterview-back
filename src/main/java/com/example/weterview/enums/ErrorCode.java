@@ -1,4 +1,4 @@
-package com.example.weterview.dto.common;
+package com.example.weterview.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
