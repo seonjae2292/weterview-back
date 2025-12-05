@@ -6,6 +6,7 @@ import com.example.weterview.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,5 +20,6 @@ public interface StudyGroupMemberRepository extends JpaRepository<StudyGroupMemb
 
     Optional<StudyGroupMember> findStudyGroupMemberByUserAndStudyGroup(User user, StudyGroup studyGroup);
 
+    @Query("select sgm, sg from StudyGroupMember sgm left join StudyGroup sg on sgm.studyGroup.id = sg.id")
     Page<StudyGroupMember> findStudyGroupMembersByUser(User user, Pageable pageable);
 }

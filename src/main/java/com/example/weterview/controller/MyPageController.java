@@ -4,6 +4,7 @@ import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
+import com.example.weterview.dto.myPage.response.GetJoinedStudyGroupRes;
 import com.example.weterview.dto.myPage.response.MyPageRes;
 import com.example.weterview.service.MyPageService;
 import com.example.weterview.service.StudyGroupService;
@@ -62,10 +63,12 @@ public class MyPageController {
     // 내가 참여한 스터디 그룹 모집 게시글 조회
     @GetMapping("/joined-study-groups")
     public ApiResponse<?> getJoinedStudyGroups(
-            @RequestHeader("Authorization") String jwt,
-            @RequestParam(value = "pageNumber", defaultValue = "0") int pageNumber,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        return myPageService.getJoinedStudyGroups(jwt, pageNumber - 1, pageSize);
+        Page<GetJoinedStudyGroupRes> response =
+                myPageService.getJoinedStudyGroups(customUserDetails.getUser(), pageNumber - 1, pageSize);
+        return ApiResponse.success(response);
     }
 
     // 스터디 그룹 상세 정보 조회
