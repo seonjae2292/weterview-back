@@ -1,10 +1,13 @@
 package com.example.weterview.service;
 
+import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.*;
 import com.example.weterview.entity.*;
+import com.example.weterview.enums.ErrorCode;
 import com.example.weterview.enums.studyMembership.JoinEnum;
+import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +25,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MyPageService {
     private final UserRepository userRepository;
     private final StudyGroupRepository studyGroupRepository;
@@ -35,30 +40,35 @@ public class MyPageService {
     }
 
     // 닉네임 변경
-    public ApiResponse<?> updateNickname(String jwt, UpdateNicknameReq req) {
-        String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
-        User user = userRepository.findByKakaoUserNumber(kakaoUniqueNumber)
-                .orElseThrow(() -> new IllegalArgumentException("없는 사용자 입니다"));
+    @Transactional
+    public void updateNickname(User principalUser, UpdateNicknameReq req) {
+        String newNickname = req.getNickname();
 
-        user.setNickname(req.getNickname());
+        // 닉네임 중복 검증
+        if (userRepository.existsByNickname(newNickname)) {
+            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+        }
 
-        userRepository.save(user);
+        // 영속성 컨텐스트 안으로 엔티티 가져오기
+        // principalUser는 SecurityFilter가 만든 준영속 객체이다
+        User user = userRepository.findById(principalUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        return ApiResponse.ok(null, "닉네임 변경 성공");
+        // user는 영속 상태
+        // 값 변경 시에 트랜잭션 종료 시 알아서 update 쿼리가 나간다.
+        user.changeNickname(newNickname);
     }
 
     // 내가 개설한 스터디 그룹 모집 게시글 조회
-    public ApiResponse<List<GetHostedStudyGroupRes>> getHostedStudyGroups(
-            String jwt, int pageNumber, int pageSize) {
-        String kakaoUniqueNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
-
+    public Page<GetHostedStudyGroupRes> getHostedStudyGroups(
+            User principalUser, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<StudyGroup> hostedStudyGroupPage = studyGroupRepository.findByKakaonum(kakaoUniqueNumber, pageable);
+
+        Page<StudyGroup> hostedStudyGroupPage = studyGroupRepository.findByUser(principalUser, pageable);
 
         // 정적 팩토리 메서드 방식
-        Page<GetHostedStudyGroupRes> result = hostedStudyGroupPage.map(GetHostedStudyGroupRes::from);
-        return ApiResponse.ok(result.getContent(), "자신이 개설한 스터디 그룹 조회");
+        return hostedStudyGroupPage.map(GetHostedStudyGroupRes::from);
     }
 
     // 내가 참여한 스터디 그룹 모집 게시글 조회
@@ -77,6 +87,7 @@ public class MyPageService {
     };
 
     /// 스터디 그룹 신청 수락
+    @Transactional
     public ApiResponse<?> acceptJoinStudyGroup(Long userId, String studyGroupId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
@@ -96,6 +107,7 @@ public class MyPageService {
     }
 
     /// 스터디 그룹 신청 거절
+    @Transactional
     public ApiResponse<?> rejectJoinStudyGroup(Long userId, String studyGroupId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
