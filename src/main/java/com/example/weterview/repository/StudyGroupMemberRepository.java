@@ -18,7 +18,7 @@ public interface StudyGroupMemberRepository extends JpaRepository<StudyGroupMemb
 
     Optional<List<StudyGroupMember>> findStudyGroupMembersListByStudyGroup(StudyGroup studyGroup);
 
-    Optional<StudyGroupMember> findStudyGroupMemberByUserAndStudyGroup(User user, StudyGroup studyGroup);
+    Optional<StudyGroupMember> findByUserIdAndStudyGroupId(Long userId, StudyGroup studyGroup);
 
     @Query("select sgm, sg from StudyGroupMember sgm left join StudyGroup sg on sgm.studyGroup.id = sg.id")
     Page<StudyGroupMember> findStudyGroupMembersByUser(User user, Pageable pageable);
