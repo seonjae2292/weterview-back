@@ -4,6 +4,7 @@ import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.*;
+import com.example.weterview.dto.studyGroup.response.GetStudyGroupApplyMemberRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.enums.ErrorCode;
 import com.example.weterview.enums.studyMembership.JoinEnum;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,11 +81,9 @@ public class MyPageService {
                 Sort.by(Sort.Direction.DESC, "appliedAt"));
 
         Page<StudyGroupMember> members =
-                studyGroupMemberRepository.findStudyGroupMembersByUser(principalUser, pageable);
+                studyGroupMemberRepository.findByUser(principalUser, pageable);
 
-        Page<GetJoinedStudyGroupRes> result = members.map(GetJoinedStudyGroupRes::from);
-
-        return result;
+        return members.map(GetJoinedStudyGroupRes::from);
     };
 
     /// 스터디 그룹 신청 수락
@@ -104,55 +104,47 @@ public class MyPageService {
 
     /// 스터디 그룹 신청 거절
     @Transactional
-    public ApiResponse<?> rejectJoinStudyGroup(Long userId, String studyGroupId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
-        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+    public void refuseJoinStudyGroup(User principalUser, Long userId, Long studyGroupId) {
+        StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디 그룹 ID 입니다."));
 
+        studyGroup.validateHost(principalUser);
+
         StudyGroupMember studyGroupMember =
-                studyGroupMemberRepository.findStudyGroupMemberByUserAndStudyGroup(user, studyGroup)
+                studyGroupMemberRepository.findByUserIdAndStudyGroupId(userId, studyGroup)
                         .orElseThrow(() -> new IllegalArgumentException("존재하지 않습니다"));
-
-        studyGroupMember.setJoin(JoinEnum.REFUSE);
-        studyGroupMember.setRefusedAt(LocalDateTime.now());
-
-        studyGroupMemberRepository.save(studyGroupMember);
-
-        return ApiResponse.ok("거절했습니다");
+        studyGroupMember.refuseJoin();
     }
 
-    // 내가 좋아요한 게시글
-    public ApiResponse<?> getLikePost(String jwt, int pageNumber, int pageSize) {
-        String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
-        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
-
+    // 내가 좋아요한 게시글 조회
+    public Page<GetLikedPostRes> getLikedPosts(User principalUser, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<StudyGroupLike> studyGroupLikes =
-                studyGroupLikeRepository.findByUserAndIsLiked(user, true, pageable);
+                studyGroupLikeRepository.findByUserAndIsLiked(principalUser, true, pageable);
 
-        Page<GetLikedPostRes> result = studyGroupLikes.map(GetLikedPostRes::from);
-
-        return ApiResponse.ok(result, "success");
+        return studyGroupLikes.map(GetLikedPostRes::from);
     }
 
     // 댓글단 게시글 조회
-    public ApiResponse<Page<GetCommentedStudyGroupRes>> getCommentedPost(String jwt, int pageNumber, int pageSize) {
-        String kakaoUserNumber = jwtUtil.getKakaoUserNumFromToken(jwt);
-        User user = userRepository.findByKakaoUserNumber(kakaoUserNumber)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
-
+    public Page<GetCommentedStudyGroupRes> getCommentedPosts(User principalUser, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<StudyGroupComment> studyGroupComments =
-                studyGroupCommentRepository.findStudyGroupCommentsByUser(user, pageable);
+                studyGroupCommentRepository.findByUser(principalUser, pageable);
 
-        Page<GetCommentedStudyGroupRes> result = studyGroupComments.map(GetCommentedStudyGroupRes::from);
+        return studyGroupComments.map(GetCommentedStudyGroupRes::from);
+    }
 
-        return ApiResponse.ok(result, "success");
+    // 스터디 그룹에 신청한 신청자 목록 조회
+    public Page<GetStudyGroupApplyMemberRes> getAppliedStudyGroup(Long studyGroupId, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(
+                pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<StudyGroupMember> member =
+                studyGroupMemberRepository.findByStudyGroup(studyGroupId, pageable);
+
+        return member.map(GetStudyGroupApplyMemberRes::from);
     }
 }

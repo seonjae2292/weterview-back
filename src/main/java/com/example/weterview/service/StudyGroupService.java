@@ -353,30 +353,6 @@ public class StudyGroupService {
         return ApiResponse.ok(result, "Success");
     }
 
-    public ApiResponse<List<GetStudyGroupApplyMemberRes>> getAppliedStudyGroup(String studyGroupId) {
-        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
-                .orElseThrow(() -> new IllegalArgumentException(studyGroupId + "에 해당하는 게시글이 없습니다."));
-        List<StudyGroupMember> studyGroupMembers =
-                studyGroupMemberRepository.findStudyGroupMembersListByStudyGroup(studyGroup)
-                        .orElseThrow(() -> new IllegalArgumentException(studyGroup.getId() + "에 신청/참여한 사용자가 없습니다."));
-
-        List<GetStudyGroupApplyMemberRes> applyMemberList = new ArrayList<>();
-        for (int i = 0; i < studyGroupMembers.size(); i++) {
-            GetStudyGroupApplyMemberRes applyMember = new GetStudyGroupApplyMemberRes();
-            applyMember.setUserId(studyGroupMembers.get(i).getUser().getId());
-            applyMember.setNickname(studyGroupMembers.get(i).getUser().getNickname());
-            applyMember.setGender(studyGroupMembers.get(i).getUser().getGender());
-            applyMember.setKakaoEmail(studyGroupMembers.get(i).getUser().getKakaoEmail());
-            applyMember.setKakaoUserNumber(studyGroupMembers.get(i).getUser().getKakaoUserNumber());
-            applyMember.setCreatedAt(studyGroupMembers.get(i).getUser().getCreatedAt());
-            applyMember.setStatus(studyGroupMembers.get(i).getJoin().toString());
-
-            applyMemberList.add(applyMember);
-        }
-
-        return ApiResponse.ok(applyMemberList, studyGroupId + "에 신청한 사용자 정보 목록입니다.");
-    }
-
     public Pageable createPageable(GetStudyGroupReq req) {
         return PageRequest.of(
                 req.getPageNumber() - 1,
