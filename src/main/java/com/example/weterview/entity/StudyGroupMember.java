@@ -63,6 +63,12 @@ public class StudyGroupMember {
         this.acceptedAt = LocalDateTime.now();
     }
 
+    public void refuseJoin() {
+        validateStatusForAccept();
+        this.join = JoinEnum.REFUSE;
+        this.refusedAt = LocalDateTime.now();
+    }
+
     // 유효성 검증
     private void validateStatusForAccept() {
         if (this.join == JoinEnum.ACCEPT) {
