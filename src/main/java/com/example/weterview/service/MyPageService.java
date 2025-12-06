@@ -87,22 +87,18 @@ public class MyPageService {
 
     /// 스터디 그룹 신청 수락
     @Transactional
-    public ApiResponse<?> acceptJoinStudyGroup(Long userId, String studyGroupId) {
+    public void acceptJoinStudyGroup(Long userId, String studyGroupId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 입니다"));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디 그룹 ID 입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
 
+        // 영속 객체
         StudyGroupMember studyGroupMember =
                 studyGroupMemberRepository.findStudyGroupMemberByUserAndStudyGroup(user, studyGroup)
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않습니다"));
+                        .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_MEMBER_NOT_FOUND));
 
-        studyGroupMember.setJoin(JoinEnum.ACCEPT);
-        studyGroupMember.setAcceptedAt(LocalDateTime.now());
-
-        studyGroupMemberRepository.save(studyGroupMember);
-
-        return ApiResponse.ok("승인했습니다.");
+        studyGroupMember.acceptJoin();
     }
 
     /// 스터디 그룹 신청 거절
