@@ -6,6 +6,8 @@ import com.example.weterview.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,9 +17,19 @@ import java.util.Optional;
 public interface StudyGroupMemberRepository extends JpaRepository<StudyGroupMember, Long> {
     Optional<StudyGroupMember> findStudyGroupMemberByUser(User user);
 
-    Optional<List<StudyGroupMember>> findStudyGroupMembersListByStudyGroup(StudyGroup studyGroup);
+    @Query(value = "select sgm " +
+            "from StudyGroupMember sgm " +
+            "join fetch User u " +
+            "where sgm.studyGroup.id = :studyGroupId",
+    countQuery = "select count(*) from StudyGroupMember sgm where sgm.studyGroup.id = :studyGroupId")
+    Page<StudyGroupMember> findByStudyGroup(@Param("studyGroupId") Long studyGroupId, Pageable pageable);
 
-    Optional<StudyGroupMember> findStudyGroupMemberByUserAndStudyGroup(User user, StudyGroup studyGroup);
+    Optional<StudyGroupMember> findByUserIdAndStudyGroupId(Long userId, StudyGroup studyGroup);
 
-    Page<StudyGroupMember> findStudyGroupMembersByUser(User user, Pageable pageable);
+    @Query(value = "select sgm " +
+            "from StudyGroupMember sgm " +
+            "join fetch sgm.studyGroup " +
+            "where sgm.user = :user",
+    countQuery = "select count(sgm) from StudyGroupMember sgm where sgm.user = :user")
+    Page<StudyGroupMember> findByUser(@Param("user") User user, Pageable pageable);
 }

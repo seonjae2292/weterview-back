@@ -1,8 +1,10 @@
 package com.example.weterview.entity;
 
+import com.example.weterview.enums.ErrorCode;
 import com.example.weterview.enums.studyMembership.JoinEnum;
+import com.example.weterview.exception.CustomException;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -11,7 +13,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "study_group_members")
 @Comment("사용자와 스터디 그룹 간의 참가 신청 및 상태(신청/수락/거절)를 관리하는 매핑 테이블")
-@Data
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class StudyGroupMember {
     @Id
@@ -51,4 +56,27 @@ public class StudyGroupMember {
     @Column(name = "refused_at")
     @Comment(value = "거절한 날짜, 시간")
     private LocalDateTime refusedAt;
+
+    public void acceptJoin() {
+        validateStatusForAccept();
+        this.join = JoinEnum.ACCEPT;
+        this.acceptedAt = LocalDateTime.now();
+    }
+
+    public void refuseJoin() {
+        validateStatusForAccept();
+        this.join = JoinEnum.REFUSE;
+        this.refusedAt = LocalDateTime.now();
+    }
+
+    // 유효성 검증
+    private void validateStatusForAccept() {
+        if (this.join == JoinEnum.ACCEPT) {
+            throw new CustomException(ErrorCode.ALREADY_ACCEPTED_MEMBER);
+        }
+
+        if(this.join == JoinEnum.REFUSE) {
+            throw new CustomException(ErrorCode.ALREADY_REFUSED_MEMBER);
+        }
+    }
 }

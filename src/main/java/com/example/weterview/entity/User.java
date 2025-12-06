@@ -9,10 +9,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
-
+@Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -44,4 +43,8 @@ public class User {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public void changeNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
 }
