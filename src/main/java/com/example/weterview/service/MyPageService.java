@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -87,15 +88,15 @@ public class MyPageService {
 
     /// 스터디 그룹 신청 수락
     @Transactional
-    public void acceptJoinStudyGroup(Long userId, String studyGroupId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
+    public void acceptJoinStudyGroup(User principalUser, Long userId, long studyGroupId) {
+        StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
+
+        studyGroup.validateHost(principalUser);
 
         // 영속 객체
         StudyGroupMember studyGroupMember =
-                studyGroupMemberRepository.findStudyGroupMemberByUserAndStudyGroup(user, studyGroup)
+                studyGroupMemberRepository.findByUserIdAndStudyGroupId(userId, studyGroup)
                         .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_MEMBER_NOT_FOUND));
 
         studyGroupMember.acceptJoin();

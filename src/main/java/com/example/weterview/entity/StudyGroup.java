@@ -1,8 +1,10 @@
 package com.example.weterview.entity;
 
+import com.example.weterview.enums.ErrorCode;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
+import com.example.weterview.exception.CustomException;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -92,4 +94,11 @@ public class StudyGroup {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    // 내가 생성한 스터디 그룹 게시글인지 확인
+    public void validateHost(User user) {
+        if (!this.user.getKakaoUserNumber().equals(user.getKakaoUserNumber())) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+    }
 }
