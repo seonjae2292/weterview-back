@@ -1,14 +1,16 @@
 package com.example.weterview.entity;
 
-import com.example.weterview.enums.studyMembership.JoinEnum;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Table(name = "study_membership")
 @Comment(value = "사용자가 생성한 스터디 그룹 게시글 매핑 테이블")
-@Data
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class StudyMembership {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +27,11 @@ public class StudyMembership {
     @ManyToOne
     @JoinColumn(name = "study_group_id")
     private StudyGroup studyGroup;
+
+    public static StudyMembership create(User user, StudyGroup studyGroup) {
+        return StudyMembership.builder()
+                .user(user)
+                .studyGroup(studyGroup)
+                .build();
+    }
 }

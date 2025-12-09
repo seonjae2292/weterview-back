@@ -1,12 +1,13 @@
 package com.example.weterview.entity;
 
+import com.example.weterview.dto.studyGroup.request.CreateStudyGroupReq;
 import com.example.weterview.enums.ErrorCode;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
 import com.example.weterview.exception.CustomException;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -17,8 +18,10 @@ import java.time.LocalDateTime;
 /// 스터디 그룹 게시글 테이블
 @Entity
 @Table(name = "study_groups")
-@Data
-@EntityListeners(AuditingEntityListener.class)
+@Getter
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class StudyGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -100,5 +103,24 @@ public class StudyGroup {
         if (!this.user.getKakaoUserNumber().equals(user.getKakaoUserNumber())) {
             throw new CustomException(ErrorCode.FORBIDDEN);
         }
+    }
+
+    public static StudyGroup create(User user, CreateStudyGroupReq req) {
+        return StudyGroup.builder()
+                .user(user)
+                .field(req.getField())
+                .title(req.getTitle())
+                .subTitle(req.getSubTitle())
+                .recruitingNumber(req.getRecruitingNumber())
+                .totalNumber(req.getTotalNumber())
+                .startDate(LocalDateTime.parse(req.getStartDate()))
+                .endDate(LocalDateTime.parse(req.getEndDate()))
+                .location(req.getLocation())
+                .description(req.getDescription())
+                .schedule(req.getSchedule())
+                .joinCondition(req.getJoinCondition())
+                .contact(req.getContact())
+                .status(StatusEnum.RECRUITING)
+                .build();
     }
 }
