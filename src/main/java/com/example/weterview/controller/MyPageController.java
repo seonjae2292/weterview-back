@@ -4,7 +4,7 @@ import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.*;
-import com.example.weterview.dto.studyGroup.response.GetStudyGroupApplyMemberRes;
+import com.example.weterview.dto.studyGroup.response.StudyGroupApplyMemberRes;
 import com.example.weterview.service.MyPageService;
 import com.example.weterview.service.StudyGroupService;
 import jakarta.validation.Valid;
@@ -13,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
@@ -115,11 +113,11 @@ public class MyPageController {
 
     // 스터디 그룹에 신청한 신청자 목록 조회
     @GetMapping("/applied/list/{studyGroupId}")
-    public ApiResponse<Page<GetStudyGroupApplyMemberRes>> getAppliedStudyGroup(
+    public ApiResponse<Page<StudyGroupApplyMemberRes>> getAppliedStudyGroup(
             @PathVariable Long studyGroupId,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        Page<GetStudyGroupApplyMemberRes> response =
+        Page<StudyGroupApplyMemberRes> response =
                 myPageService.getAppliedStudyGroup(studyGroupId, pageNumber - 1, pageSize);
         return ApiResponse.success(response);
     }
