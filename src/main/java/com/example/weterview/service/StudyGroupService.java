@@ -1,21 +1,21 @@
 package com.example.weterview.service;
 
-import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
+import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
 import com.example.weterview.dto.studyGroup.request.*;
-import com.example.weterview.dto.studyGroup.response.GetCommentRes;
-import com.example.weterview.dto.studyGroup.response.GetStudyGroupApplyMemberRes;
-import com.example.weterview.dto.studyGroup.response.GetStudyGroupDetailRes;
-import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
+import com.example.weterview.dto.studyGroup.response.CommentRes;
+import com.example.weterview.dto.studyGroup.response.StudyGroupDetailRes;
+import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.entity.StudyGroupMember;
+import com.example.weterview.enums.ErrorCode;
 import com.example.weterview.enums.studyGroup.StatusEnum;
 import com.example.weterview.enums.studyMembership.JoinEnum;
+import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +24,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Array;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -55,58 +53,25 @@ public class StudyGroupService {
         studyMembershipRepository.save(studyMembership);
     }
 
-    // 스터디 그룹 조회
-    public ApiResponse<?> getStudyGroup(GetStudyGroupReq req) {
+    // [검색] 스터디 그룹 조회
+    public Page<StudyGroupRes> getStudyGroup(GetStudyGroupReq req) {
         Pageable pageable = createPageable(req); // 페이지 조건
         Specification<StudyGroup> spec = buildSpecification(req); // 검색 조건
-        Page<StudyGroup> entityPage = studyGroupRepository.findAll(spec, pageable);
 
-        // StudyGroup Entity를 GetStudyGroupPageRes DTO로 변환하는 함수
-        Page<GetStudyGroupPageRes> paged = entityPage.map(e -> {
-            GetStudyGroupPageRes dto = new GetStudyGroupPageRes();
-            // 리플렉션을 사용하여 source 객체의 property를 target 객체로 복사
-            BeanUtils.copyProperties(e, dto);
-            return dto;
-        });
+        Page<StudyGroup> studyGroupPage = studyGroupRepository.findAll(spec, pageable);
 
-        return ApiResponse.ok(paged, "스터디그룹 목록 조회 성공");
+        return studyGroupPage.map(StudyGroupRes::from);
     }
 
-    // 스터디 그룹 단일 조회
-    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(String id, User user) {
-        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(id))
-                .orElseThrow(() -> new IllegalArgumentException("없는 게시글 입니다."));
+    // 스터디 그룹 모집 게시글 단건 조회
+    public GetStudyGroupByIdRes getStudyGroupById(Long id, User user) {
+        StudyGroup studyGroup = studyGroupRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
 
-        boolean isLiked = false;
+        boolean isLiked = (user != null) &&
+                studyGroupLikeRepository.existsByStudyGroupAndUserAndIsLiked(studyGroup, user, true);
 
-        if (user != null) {
-            Optional<StudyGroupLike> studyGroupLike = studyGroupLikeRepository.findByStudyGroupAndUser(studyGroup, user);
-            if (studyGroupLike.isPresent()) {
-                isLiked = studyGroupLike.get().isLiked();
-            }
-        }
-
-        GetStudyGroupByIdRes getStudyGroupByIdRes = GetStudyGroupByIdRes.builder()
-                .id(studyGroup.getId().toString())
-                .field(studyGroup.getField())
-                .status(studyGroup.getStatus())
-                .title(studyGroup.getTitle())
-                .subTitle(studyGroup.getSubTitle())
-                .recruitingNumber(studyGroup.getRecruitingNumber())
-                .totalNumber(studyGroup.getTotalNumber())
-                .startDate(studyGroup.getStartDate())
-                .endDate(studyGroup.getEndDate())
-                .location(studyGroup.getLocation())
-                .schedule(studyGroup.getSchedule())
-                .description(studyGroup.getDescription())
-                .joinCondition(studyGroup.getJoinCondition())
-                .contact(studyGroup.getContact())
-                .createdAt(studyGroup.getCreatedAt())
-                .updatedAt(studyGroup.getUpdatedAt())
-                .isLiked(isLiked)
-                .build();
-
-        return ApiResponse.ok(getStudyGroupByIdRes, "조회성공");
+        return GetStudyGroupByIdRes.from(studyGroup, isLiked);
     }
 
     // 스터디 그룹 수정
@@ -198,15 +163,15 @@ public class StudyGroupService {
     }
 
     // 댓글 조회
-    public ApiResponse<List<GetCommentRes>> getComment(String studyGroupId) {
+    public ApiResponse<List<CommentRes>> getComment(String studyGroupId) {
         List<StudyGroupComment> comments = studyGroupCommentRepository.findByStudyGroupId(Long.parseLong(studyGroupId));
 
-        List<GetCommentRes> result = List.of();
+        List<CommentRes> result = List.of();
 
         if (!comments.isEmpty()) {
             result = comments.stream()
                     .map(item ->
-                            new GetCommentRes(item.getContent(), item.getCreatedAt(), item.getUser().getNickname()))
+                            new CommentRes(item.getContent(), item.getCreatedAt(), item.getUser().getNickname()))
                     .toList();
         }
 
@@ -299,11 +264,11 @@ public class StudyGroupService {
                 .orElse((root, q, cb) -> cb.conjunction());
     }
 
-    public ApiResponse<GetStudyGroupDetailRes> getStudyGroupDetail(String studyGroupId){
+    public ApiResponse<StudyGroupDetailRes> getStudyGroupDetail(String studyGroupId){
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 스터디 그룹이 존재하지 않습니다."));
 
-        GetStudyGroupDetailRes result = new GetStudyGroupDetailRes();
+        StudyGroupDetailRes result = new StudyGroupDetailRes();
         result.setField(studyGroup.getField());
         result.setStatus(studyGroup.getStatus());
         result.setRecruitingNumber(studyGroup.getRecruitingNumber());
@@ -333,26 +298,26 @@ public class StudyGroupService {
     }
 
     // 인기있는 스터디 그룹 조회
-    public ApiResponse<Page<GetStudyGroupPageRes>> getPopularStudyGroup(int pageNumber, int pageSize) {
+    public ApiResponse<Page<StudyGroupRes>> getPopularStudyGroup(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<StudyGroup> popularStudyGroup =
                 studyGroupRepository.findPopularByApplicationCount(StatusEnum.RECRUITING, pageable);
 
-        Page<GetStudyGroupPageRes> result = popularStudyGroup.map(GetStudyGroupPageRes::from);
+        Page<StudyGroupRes> result = popularStudyGroup.map(StudyGroupRes::from);
         return ApiResponse.ok(result, "인기있는 스터디 그룹 게시글 조회 성공");
     }
 
     // 최신 스터디 그룹 조회
-    public ApiResponse<List<GetStudyGroupPageRes>> getLatestStudyGroup(int count) {
+    public ApiResponse<List<StudyGroupRes>> getLatestStudyGroup(int count) {
         Pageable pageable = PageRequest.of(0, count);
 
         List<StudyGroup> latestStudyGroup =
                 studyGroupRepository.findLatestByStatus(StatusEnum.RECRUITING, pageable);
 
-        List<GetStudyGroupPageRes> result = latestStudyGroup.stream()
-                .map(GetStudyGroupPageRes::from)
+        List<StudyGroupRes> result = latestStudyGroup.stream()
+                .map(StudyGroupRes::from)
                 .toList();
 
         return ApiResponse.ok(result, "최신 스터디 그룹 게시글 조회 성공");
