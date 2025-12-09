@@ -3,11 +3,13 @@ package com.example.weterview.controller;
 import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
-import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
+import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
+import com.example.weterview.entity.StudyGroup;
 import com.example.weterview.service.StudyGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,18 +31,21 @@ public class StudyGroupController {
         return ApiResponse.success();
     }
 
-    // 스터디 그룹 모집 게시글 검색 조회
+    // [검색] 스터디 그룹 조회
     @GetMapping("/get")
-    public ApiResponse<?> getStudyGroup(@ModelAttribute @Valid GetStudyGroupReq req) {
-        return studyGroupService.getStudyGroup(req);
+    public ApiResponse<?> getStudyGroup(
+            @ModelAttribute @Valid GetStudyGroupReq req) {
+        Page<StudyGroupRes> response = studyGroupService.getStudyGroup(req);
+        return ApiResponse.success(response);
     }
 
     // 스터디 그룹 모집 게시글 단건 조회
     @GetMapping("/get/{id}")
     public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(
-            @PathVariable String id,
+            @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return studyGroupService.getStudyGroupById(id, customUserDetails.getUser());
+        GetStudyGroupByIdRes response = studyGroupService.getStudyGroupById(id, customUserDetails.getUser());
+        return ApiResponse.success(response);
     }
 
     // 스터디 그룹 모집 게시글 수정
@@ -106,7 +111,7 @@ public class StudyGroupController {
 
     // 최신 스터디 그룹 조회
     @GetMapping("/latest")
-    public ApiResponse<List<GetStudyGroupPageRes>> getLatestStudyGroup(
+    public ApiResponse<List<StudyGroupRes>> getLatestStudyGroup(
             @RequestParam(value = "count", defaultValue = "3") int count) {
         return studyGroupService.getLatestStudyGroup(count);
     }
