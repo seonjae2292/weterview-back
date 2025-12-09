@@ -4,13 +4,14 @@ import com.example.weterview.entity.StudyGroup;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class StudyGroupRes {
     private long id;
     private FieldEnum field;
@@ -24,23 +25,19 @@ public class StudyGroupRes {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    public static StudyGroupRes from(StudyGroup entity) {
-        StudyGroupRes dto = new StudyGroupRes();
-        dto.id = entity.getId();
-        dto.title = entity.getTitle();
-        dto.subTitle = entity.getSubTitle();
-        dto.description = entity.getDescription();
-
-        dto.recruitingNumber = entity.getRecruitingNumber();
-        dto.totalNumber = entity.getTotalNumber();
-
-        dto.field = entity.getField();
-        dto.status = entity.getStatus();
-        dto.location = entity.getLocation();
-
-        dto.startDate = entity.getStartDate();
-        dto.endDate = entity.getEndDate();
-
-        return dto;
+    public static StudyGroupRes from(StudyGroup studyGroup) {
+        return StudyGroupRes.builder()
+                .field(studyGroup.getField())
+                .status(studyGroup.getStatus())
+                .title(studyGroup.getTitle())
+                .subTitle(studyGroup.getSubTitle())
+                .location(studyGroup.getLocation())
+                .description(studyGroup.getDescription())
+                .recruitingNumber(studyGroup.getRecruitingNumber())
+                .totalNumber(studyGroup.getTotalNumber())
+                .startDate(studyGroup.getStartDate())
+                .endDate(studyGroup.getEndDate())
+                .build();
     }
+
 }
