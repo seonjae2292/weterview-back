@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class GetCommentRes {
+public class CommentRes {
     private String content;
     private LocalDateTime createdAt;
     private String nickname;

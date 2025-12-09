@@ -1,17 +1,13 @@
 package com.example.weterview.dto.studyGroup.response;
 
-import com.example.weterview.dto.myPage.response.GetJoinedStudyGroupRes;
 import com.example.weterview.entity.StudyGroupMember;
-import com.example.weterview.enums.studyMembership.JoinEnum;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class GetStudyGroupApplyMemberRes {
+public class StudyGroupApplyMemberRes {
     private Long userId;
     private String kakaoUserNumber;
     private String nickname;
@@ -19,8 +15,8 @@ public class GetStudyGroupApplyMemberRes {
     private String gender;
     private String status;
 
-    public static GetStudyGroupApplyMemberRes from(StudyGroupMember studyGroupMember) {
-        return GetStudyGroupApplyMemberRes.builder()
+    public static StudyGroupApplyMemberRes from(StudyGroupMember studyGroupMember) {
+        return StudyGroupApplyMemberRes.builder()
                 .userId(studyGroupMember.getUser().getId())
                 .kakaoUserNumber(studyGroupMember.getUser().getKakaoUserNumber())
                 .nickname(studyGroupMember.getUser().getNickname())

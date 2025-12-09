@@ -1,11 +1,9 @@
 package com.example.weterview.dto.studyGroup.response;
 
-import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
 import com.example.weterview.entity.StudyGroup;
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-public class GetStudyGroupPageRes {
+public class StudyGroupRes {
     private long id;
     private FieldEnum field;
     private StatusEnum status;
@@ -26,8 +24,8 @@ public class GetStudyGroupPageRes {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    public static GetStudyGroupPageRes from(StudyGroup entity) {
-        GetStudyGroupPageRes dto = new GetStudyGroupPageRes();
+    public static StudyGroupRes from(StudyGroup entity) {
+        StudyGroupRes dto = new StudyGroupRes();
         dto.id = entity.getId();
         dto.title = entity.getTitle();
         dto.subTitle = entity.getSubTitle();
