@@ -4,7 +4,6 @@ import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.GetStudyGroupPageRes;
-import com.example.weterview.entity.User;
 import com.example.weterview.service.StudyGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +23,10 @@ public class StudyGroupController {
     // 스터디 그룹 모집 게시글 생성
     @PostMapping("/create")
     public ApiResponse<?> createStudyGroup(
-            @RequestHeader("Authorization") String jwt,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody CreateStudyGroupReq req) {
-        return studyGroupService.createStudyGroup(jwt, req);
+        studyGroupService.createStudyGroup(customUserDetails.getUser(), req);
+        return ApiResponse.success();
     }
 
     // 스터디 그룹 모집 게시글 검색 조회
