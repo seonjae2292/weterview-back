@@ -51,23 +51,25 @@ public class StudyGroupController {
     // 스터디 그룹 모집 게시글 수정
     @PatchMapping("/update/{id}")
     public ApiResponse<?> updateStudyGroup(
-            @PathVariable String id,
-            @RequestBody @Valid UpdateStudyGroupReq req) {
-        return studyGroupService.updateStudyGroup(id, req);
+            @PathVariable Long id, @RequestBody @Valid UpdateStudyGroupReq req) {
+        studyGroupService.updateStudyGroup(id, req);
+        return ApiResponse.success();
     }
 
     // 스터디 그룹 모집 게시글 삭제
     @DeleteMapping("/delete/{id}")
-    public ApiResponse<?> deleteStudyGroup(@PathVariable String id) {
-        return studyGroupService.deleteStudyGroup(id);
+    public ApiResponse<?> deleteStudyGroup(@PathVariable Long id) {
+        studyGroupService.deleteStudyGroup(id);
+        return ApiResponse.success();
     }
 
     // 스터디 그룹 참여 신청
     @PostMapping("/join/{studyGroupId}")
     public ApiResponse<?> joinStudyGroup(
-            @PathVariable String studyGroupId,
-            @RequestHeader("Authorization") String jwt) {
-        return studyGroupService.joinStudyGroup(studyGroupId, jwt);
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long studyGroupId) {
+        studyGroupService.joinStudyGroup(customUserDetails.getUser(), studyGroupId);
+        return ApiResponse.success();
     }
 
     // 댓글 추가

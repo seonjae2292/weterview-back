@@ -15,8 +15,6 @@ import java.util.Optional;
 
 @Repository
 public interface StudyGroupMemberRepository extends JpaRepository<StudyGroupMember, Long> {
-    Optional<StudyGroupMember> findStudyGroupMemberByUser(User user);
-
     @Query(value = "select sgm " +
             "from StudyGroupMember sgm " +
             "join fetch User u " +

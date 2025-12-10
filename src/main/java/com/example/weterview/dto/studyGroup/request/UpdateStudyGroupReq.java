@@ -2,6 +2,7 @@ package com.example.weterview.dto.studyGroup.request;
 
 import com.example.weterview.enums.studyGroup.FieldEnum;
 import com.example.weterview.enums.studyGroup.LocationEnum;
+import com.example.weterview.enums.studyGroup.StatusEnum;
 import lombok.Data;
 
 @Data
@@ -18,5 +19,5 @@ public class UpdateStudyGroupReq {
     private String schedule;
     private String joinCondition;
     private String contact;
-    private String Status;
+    private StatusEnum status;
 }
