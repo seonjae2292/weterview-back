@@ -11,6 +11,7 @@ public enum ErrorCode {
     // Global
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL_500", "서버 내부 오류가 발생했습니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "GLOBAL_400", "입력값이 올바르지 않습니다."),
+    MISSING_INPUT_VALUE(HttpStatus.BAD_REQUEST, "GLOBAL_400_1", "필수 입력 값이 누락되었습니다."),
 
     // FORBIDDEN
     FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH_403", "해당 리소스에 접근 권한이 없습니다"),
