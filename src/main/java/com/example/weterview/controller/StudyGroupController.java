@@ -4,7 +4,8 @@ import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
-import com.example.weterview.entity.StudyGroup;
+import com.example.weterview.service.StudyGroupCommentService;
+import com.example.weterview.service.StudyGroupLikeService;
 import com.example.weterview.service.StudyGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StudyGroupController {
     private final StudyGroupService studyGroupService;
+    private final StudyGroupCommentService studyGroupCommentService;
+    private final StudyGroupLikeService studyGroupLikeService;
 
     // 스터디 그룹 모집 게시글 생성
     @PostMapping("/create")
@@ -75,9 +78,10 @@ public class StudyGroupController {
     // 댓글 추가
     @PostMapping("/create/comment")
     public ApiResponse<?> createComment(
-            @RequestBody CreateCommentReq req,
-            @RequestHeader("Authorization") String jwt) {
-        return studyGroupService.createComment(req, jwt);
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody CreateCommentReq req) {
+        studyGroupCommentService.createComment(customUserDetails.getUser(), req);
+        return ApiResponse.success();
     }
 
     // 스터디 그룹 모집 게시글 댓글 조회
