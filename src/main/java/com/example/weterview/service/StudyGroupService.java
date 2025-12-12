@@ -1,16 +1,13 @@
 package com.example.weterview.service;
 
 import com.example.weterview.dto.common.ApiResponse;
-import com.example.weterview.dto.myPage.response.GetHostedStudyGroupRes;
 import com.example.weterview.dto.studyGroup.request.*;
-import com.example.weterview.dto.studyGroup.response.CommentRes;
 import com.example.weterview.dto.studyGroup.response.StudyGroupDetailRes;
 import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.entity.StudyGroupMember;
 import com.example.weterview.enums.ErrorCode;
 import com.example.weterview.enums.studyGroup.StatusEnum;
-import com.example.weterview.enums.studyMembership.JoinEnum;
 import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
