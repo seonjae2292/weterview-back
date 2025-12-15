@@ -20,6 +20,8 @@ public interface StudyGroupLikeRepository extends JpaRepository<StudyGroupLike, 
             "from StudyGroupLike sgl " +
             "join fetch sgl.studyGroup " +
             "where sgl.user = :user",
-    countQuery = "select sgl from StudyGroupLike sgl where sgl.user = :user")
+            countQuery = "select sgl from StudyGroupLike sgl where sgl.user = :user")
     Page<StudyGroupLike> findByUserAndIsLiked(@Param("user") User user, boolean isLiked, Pageable pageable);
+
+    boolean existsByStudyGroupAndUserAndIsLiked(StudyGroup studyGroup, User user, boolean isLiked);
 }

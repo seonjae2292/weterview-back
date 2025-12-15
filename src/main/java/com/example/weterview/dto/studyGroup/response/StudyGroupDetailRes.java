@@ -8,7 +8,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class GetStudyGroupDetailRes {
+public class StudyGroupDetailRes {
     private FieldEnum field;
     private StatusEnum status;
 

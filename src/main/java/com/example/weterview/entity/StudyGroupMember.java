@@ -57,6 +57,11 @@ public class StudyGroupMember {
     @Comment(value = "거절한 날짜, 시간")
     private LocalDateTime refusedAt;
 
+    public void applyJoin() {
+        validateStatusForAccept();
+        this.appliedAt = LocalDateTime.now();
+    }
+
     public void acceptJoin() {
         validateStatusForAccept();
         this.join = JoinEnum.ACCEPT;

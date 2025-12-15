@@ -1,7 +1,8 @@
 package com.example.weterview.entity;
 
+import com.example.weterview.service.StudyGroupCommentService;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -10,7 +11,9 @@ import java.time.LocalDateTime;
 /// 스터디 그룹 게시글 코멘트 테이블
 @Entity
 @Table(name = "study_group_comments")
-@Data
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
 public class StudyGroupComment {
     @Id
@@ -35,4 +38,14 @@ public class StudyGroupComment {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Builder
+    public StudyGroupComment(
+            StudyGroup studyGroup, User user, String content,
+            LocalDateTime createdAt) {
+        this.studyGroup = studyGroup;
+        this.user = user;
+        this.content = content;
+        this.createdAt = createdAt;
+    }
 }

@@ -1,13 +1,10 @@
 package com.example.weterview.service;
 
-import com.example.weterview.config.CustomUserDetails;
-import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.*;
-import com.example.weterview.dto.studyGroup.response.GetStudyGroupApplyMemberRes;
+import com.example.weterview.dto.studyGroup.response.StudyGroupApplyMemberRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.enums.ErrorCode;
-import com.example.weterview.enums.studyMembership.JoinEnum;
 import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
@@ -19,11 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -139,12 +131,12 @@ public class MyPageService {
     }
 
     // 스터디 그룹에 신청한 신청자 목록 조회
-    public Page<GetStudyGroupApplyMemberRes> getAppliedStudyGroup(Long studyGroupId, int pageNumber, int pageSize) {
+    public Page<StudyGroupApplyMemberRes> getAppliedStudyGroup(Long studyGroupId, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(
                 pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<StudyGroupMember> member =
                 studyGroupMemberRepository.findByStudyGroup(studyGroupId, pageable);
 
-        return member.map(GetStudyGroupApplyMemberRes::from);
+        return member.map(StudyGroupApplyMemberRes::from);
     }
 }
