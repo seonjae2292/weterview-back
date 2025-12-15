@@ -24,7 +24,7 @@ import java.util.List;
 public class StudyGroupController {
     private final StudyGroupService studyGroupService;
     private final StudyGroupCommentService studyGroupCommentService;
-    private final StudyGroupLikeService studyGroupLikeService;
+    private final StudyGroupLikeService StudyGroupLikeService;
 
     // 스터디 그룹 모집 게시글 생성
     @PostMapping("/create")
@@ -95,17 +95,10 @@ public class StudyGroupController {
     // 스터디 그룹 모집 게시글 좋아요
     @PostMapping("/{studyGroupId}/likes")
     public ApiResponse<?> likeStudyGroup(
-            @PathVariable String studyGroupId,
-            @RequestHeader("Authorization") String jwt) {
-        return studyGroupService.likeStudyGroup(studyGroupId, jwt);
-    }
-
-    // 스터디 그룹 모집 게시글 좋아요 취소
-    @PostMapping("/{studyGroupId}/unlikes")
-    public ApiResponse<?> unlikeStudyGroup(
-            @PathVariable String studyGroupId,
-            @RequestHeader("Authorization") String jwt) {
-        return studyGroupService.unlikeStudyGroup(studyGroupId, jwt);
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable String studyGroupId) {
+        StudyGroupLikeService.likeStudyGroup(customUserDetails.getUser(), studyGroupId);
+        return ApiResponse.success();
     }
 
     // 인기있는 스터디 그룹 조회
