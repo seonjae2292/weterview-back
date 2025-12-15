@@ -8,7 +8,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -27,6 +27,7 @@ public class StudyGroupRes {
 
     public static StudyGroupRes from(StudyGroup studyGroup) {
         return StudyGroupRes.builder()
+                .id(studyGroup.getId())
                 .field(studyGroup.getField())
                 .status(studyGroup.getStatus())
                 .title(studyGroup.getTitle())

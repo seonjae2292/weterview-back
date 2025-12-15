@@ -103,17 +103,20 @@ public class StudyGroupController {
 
     // 인기있는 스터디 그룹 조회
     @GetMapping("/popular")
-    public ApiResponse<?> getPopularStudyGroup(
+    public ApiResponse<Page<StudyGroupRes>> getPopularStudyGroup(
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
-        return studyGroupService.getPopularStudyGroup(pageNumber - 1, pageSize);
+        Page<StudyGroupRes> response =
+                studyGroupService.getPopularStudyGroup(pageNumber - 1, pageSize);
+        return ApiResponse.success(response);
     }
 
     // 최신 스터디 그룹 조회
     @GetMapping("/latest")
     public ApiResponse<List<StudyGroupRes>> getLatestStudyGroup(
             @RequestParam(value = "count", defaultValue = "3") int count) {
-        return studyGroupService.getLatestStudyGroup(count);
+        List<StudyGroupRes> response = studyGroupService.getLatestStudyGroup(count);
+        return ApiResponse.success(response);
     }
 }

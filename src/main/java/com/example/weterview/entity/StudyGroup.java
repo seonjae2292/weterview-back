@@ -100,9 +100,8 @@ public class StudyGroup {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-
     @Builder
-    public StudyGroup(User user, FieldEnum field, StatusEnum status, String title,
+    private StudyGroup(User user, FieldEnum field, StatusEnum status, String title,
                       String subTitle, Integer recruitingNumber, Integer totalNumber,
                       LocalDateTime startDate, LocalDateTime endDate, LocationEnum location,
                       String description, String schedule, String joinCondition, String contact) {
