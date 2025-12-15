@@ -144,45 +144,20 @@ public class StudyGroupService {
         studyGroupMember.applyJoin();
     }
 
-    public ApiResponse<StudyGroupDetailRes> getStudyGroupDetail(String studyGroupId){
-        StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(studyGroupId))
-                .orElseThrow(() -> new IllegalArgumentException("해당하는 스터디 그룹이 존재하지 않습니다."));
-
-        StudyGroupDetailRes result = new StudyGroupDetailRes();
-        result.setField(studyGroup.getField());
-        result.setStatus(studyGroup.getStatus());
-        result.setRecruitingNumber(studyGroup.getRecruitingNumber());
-        result.setTotalNumber(studyGroup.getTotalNumber());
-        result.setStartDate(studyGroup.getStartDate());
-        result.setEndDate(studyGroup.getEndDate());
-        result.setLocation(studyGroup.getLocation());
-        result.setTitle(studyGroup.getTitle());
-        result.setSubTitle(studyGroup.getSubTitle());
-        result.setDescription(studyGroup.getDescription());
-        result.setSchedule(studyGroup.getSchedule());
-        result.setJoinCondition(studyGroup.getJoinCondition());
-        result.setContact(studyGroup.getContact());
-        result.setCreatedAt(studyGroup.getCreatedAt());
-        result.setUpdatedAt(studyGroup.getUpdatedAt());
-        result.setDeletedAt(studyGroup.getDeletedAt());
-
-        return ApiResponse.ok(result, "Success");
-    }
-
     // 인기있는 스터디 그룹 조회
-    public ApiResponse<Page<StudyGroupRes>> getPopularStudyGroup(int pageNumber, int pageSize) {
+    public Page<StudyGroupRes> getPopularStudyGroup(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
-                Sort.by(Sort.Direction.DESC, "createdAt"));
+                Sort.by(Sort.Direction.DESC));
 
         Page<StudyGroup> popularStudyGroup =
                 studyGroupRepository.findPopularByApplicationCount(StatusEnum.RECRUITING, pageable);
 
         Page<StudyGroupRes> result = popularStudyGroup.map(StudyGroupRes::from);
-        return ApiResponse.ok(result, "인기있는 스터디 그룹 게시글 조회 성공");
+        return result;
     }
 
     // 최신 스터디 그룹 조회
-    public ApiResponse<List<StudyGroupRes>> getLatestStudyGroup(int count) {
+    public List<StudyGroupRes> getLatestStudyGroup(int count) {
         Pageable pageable = PageRequest.of(0, count);
 
         List<StudyGroup> latestStudyGroup =
@@ -192,9 +167,10 @@ public class StudyGroupService {
                 .map(StudyGroupRes::from)
                 .toList();
 
-        return ApiResponse.ok(result, "최신 스터디 그룹 게시글 조회 성공");
+        return result;
     }
 
+    // Page 객체 생성
     public Pageable createPageable(GetStudyGroupReq req) {
         return PageRequest.of(
                 req.getPageNumber() - 1,
