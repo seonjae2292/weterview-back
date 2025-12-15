@@ -3,6 +3,7 @@ package com.example.weterview.controller;
 import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
+import com.example.weterview.dto.studyGroup.response.StudyGroupCommentRes;
 import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
 import com.example.weterview.service.StudyGroupCommentService;
 import com.example.weterview.service.StudyGroupLikeService;
@@ -84,10 +85,11 @@ public class StudyGroupController {
         return ApiResponse.success();
     }
 
-    // 스터디 그룹 모집 게시글 댓글 조회
+    // 스터디 그룹 게시글 댓글 조회
     @GetMapping("/get/comment/{studyGroupId}")
-    public ApiResponse<?> getComment(@PathVariable String studyGroupId) {
-        return studyGroupService.getComment(studyGroupId);
+    public ApiResponse<List<StudyGroupCommentRes>> getComment(@PathVariable Long studyGroupId) {
+        List<StudyGroupCommentRes> response = studyGroupCommentService.getComment(studyGroupId);
+        return ApiResponse.success(response);
     }
 
     // 스터디 그룹 모집 게시글 좋아요

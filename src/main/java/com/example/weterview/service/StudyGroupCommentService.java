@@ -1,8 +1,7 @@
 package com.example.weterview.service;
 
-import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.CreateCommentReq;
-import com.example.weterview.dto.studyGroup.response.CommentRes;
+import com.example.weterview.dto.studyGroup.response.StudyGroupCommentRes;
 import com.example.weterview.entity.StudyGroup;
 import com.example.weterview.entity.StudyGroupComment;
 import com.example.weterview.entity.User;
@@ -40,20 +39,11 @@ public class StudyGroupCommentService {
         studyGroupCommentRepository.save(studyGroupComment);
     }
 
-    // 댓글 조회
-    public ApiResponse<List<CommentRes>> getComment(String studyGroupId) {
-        List<StudyGroupComment> comments =
-                studyGroupCommentRepository.findByStudyGroupId(Long.parseLong(studyGroupId));
+    // 스터디 그룹 게시글 댓글 조회
+    public List<StudyGroupCommentRes> getComment(Long studyGroupId) {
+        List<StudyGroupComment> result =
+                studyGroupCommentRepository.findByStudyGroupId(studyGroupId);
 
-        List<CommentRes> result = List.of();
-
-        if (!comments.isEmpty()) {
-            result = comments.stream()
-                    .map(item ->
-                            new CommentRes(item.getContent(), item.getCreatedAt(), item.getUser().getNickname()))
-                    .toList();
-        }
-
-        return ApiResponse.ok(result, "댓글 조회 성공");
+        return result.stream().map(StudyGroupCommentRes::from).toList();
     }
 }

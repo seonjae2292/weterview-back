@@ -39,7 +39,6 @@ public class StudyGroupComment {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-
     @Builder
     public StudyGroupComment(
             StudyGroup studyGroup, User user, String content,
