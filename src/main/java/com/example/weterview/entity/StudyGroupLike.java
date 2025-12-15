@@ -1,8 +1,9 @@
 package com.example.weterview.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
@@ -13,14 +14,15 @@ import java.time.LocalDateTime;
         @Index(name = "idx_user_liked_created", columnList = "user_id, is_liked, created_at")
 })
 @EntityListeners(AuditingEntityListener.class)
-@Data
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyGroupLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "study_group_like_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -36,5 +38,25 @@ public class StudyGroupLike {
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder
+    private StudyGroupLike(User user, StudyGroup studyGroup, boolean isLiked) {
+        this.user = user;
+        this.studyGroup = studyGroup;
+        this.isLiked = isLiked;
+    }
+
+    public static StudyGroupLike create(User user, StudyGroup studyGroup) {
+        return StudyGroupLike.builder()
+                .user(user)
+                .studyGroup(studyGroup)
+                .isLiked(true)
+                .build();
+    }
+
+    public void toggle(){
+        this.isLiked = !this.isLiked;
+    }
 }
