@@ -1,4 +1,4 @@
-package com.example.weterview.entity.studyGroup;
+package com.example.weterview.entity.studyGroup.vo;
 
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
