@@ -85,8 +85,6 @@ public class MyPageService {
         StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
                 .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
-        studyGroup.validateHost(principalUser);
-
         // 영속 객체
         StudyGroupMember studyGroupMember =
                 studyGroupMemberRepository.findByUserIdAndStudyGroupId(userId, studyGroup)
@@ -100,8 +98,6 @@ public class MyPageService {
     public void refuseJoinStudyGroup(User principalUser, Long userId, Long studyGroupId) {
         StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 스터디 그룹 ID 입니다."));
-
-        studyGroup.validateHost(principalUser);
 
         StudyGroupMember studyGroupMember =
                 studyGroupMemberRepository.findByUserIdAndStudyGroupId(userId, studyGroup)
