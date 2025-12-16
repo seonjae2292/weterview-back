@@ -4,7 +4,8 @@ import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.*;
 import com.example.weterview.dto.studyGroup.response.StudyGroupApplyMemberRes;
 import com.example.weterview.entity.*;
-import com.example.weterview.enums.ErrorCode;
+import com.example.weterview.entity.studyGroup.StudyGroup;
+import com.example.weterview.enums.ResultCode;
 import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.*;
 import com.example.weterview.utils.JwtUtil;
@@ -41,13 +42,13 @@ public class MyPageService {
 
         // 닉네임 중복 검증
         if (userRepository.existsByNickname(newNickname)) {
-            throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+            throw new CustomException(ResultCode.DUPLICATE_NICKNAME);
         }
 
         // 영속성 컨텐스트 안으로 엔티티 가져오기
         // principalUser는 SecurityFilter가 만든 준영속 객체이다
         User user = userRepository.findById(principalUser.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResultCode.USER_NOT_FOUND));
 
         // user는 영속 상태
         // 값 변경 시에 트랜잭션 종료 시 알아서 update 쿼리가 나간다.
@@ -82,14 +83,14 @@ public class MyPageService {
     @Transactional
     public void acceptJoinStudyGroup(User principalUser, Long userId, long studyGroupId) {
         StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
         studyGroup.validateHost(principalUser);
 
         // 영속 객체
         StudyGroupMember studyGroupMember =
                 studyGroupMemberRepository.findByUserIdAndStudyGroupId(userId, studyGroup)
-                        .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_MEMBER_NOT_FOUND));
+                        .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_MEMBER_NOT_FOUND));
 
         studyGroupMember.acceptJoin();
     }

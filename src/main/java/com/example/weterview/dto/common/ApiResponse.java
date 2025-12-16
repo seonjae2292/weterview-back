@@ -1,6 +1,6 @@
 package com.example.weterview.dto.common;
 
-import com.example.weterview.enums.ErrorCode;
+import com.example.weterview.enums.ResultCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -36,12 +36,12 @@ public class ApiResponse<T> {
         return new ApiResponse<>(null, new ErrorBody(code, message));
     }
 
-    public static ApiResponse<?> fail(ErrorCode errorCode) {
-        return new ApiResponse<>(null, new ErrorBody(errorCode.getCode(), errorCode.getMessage()));
+    public static ApiResponse<?> fail(ResultCode resultCode) {
+        return new ApiResponse<>(null, new ErrorBody(resultCode.getCode(), resultCode.getMessage()));
     }
 
-    public static ApiResponse<?> fail(ErrorCode errorCode, String message) {
-        return new ApiResponse<>(null, new ErrorBody(errorCode.getCode(), message));
+    public static ApiResponse<?> fail(ResultCode resultCode, String message) {
+        return new ApiResponse<>(null, new ErrorBody(resultCode.getCode(), message));
     }
 
     // 내부 클래스: 에러 구조 정의
