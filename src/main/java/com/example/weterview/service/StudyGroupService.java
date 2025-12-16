@@ -1,16 +1,17 @@
 package com.example.weterview.service;
 
-import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
-import com.example.weterview.dto.studyGroup.response.StudyGroupDetailRes;
 import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.entity.StudyGroupMember;
-import com.example.weterview.enums.ErrorCode;
+import com.example.weterview.entity.studyGroup.StudyGroup;
+import com.example.weterview.entity.studyGroup.vo.StudyCapacity;
+import com.example.weterview.entity.studyGroup.vo.StudyContent;
+import com.example.weterview.entity.studyGroup.vo.StudyPeriod;
+import com.example.weterview.enums.ResultCode;
 import com.example.weterview.enums.studyGroup.StatusEnum;
 import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.*;
-import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,34 +35,23 @@ import java.util.stream.Stream;
 public class StudyGroupService {
     private final StudyGroupRepository studyGroupRepository;
     private final StudyMembershipRepository studyMembershipRepository;
-    private final UserRepository userRepository;
-    private final StudyGroupCommentRepository studyGroupCommentRepository;
     private final StudyGroupLikeRepository studyGroupLikeRepository;
     private final StudyGroupMemberRepository studyGroupMemberRepository;
-
-    private final JwtUtil jwtUtil;
 
     // 스터디 그룹 게시글 생성
     @Transactional
     public void createStudyGroup(User principalUser, CreateStudyGroupReq req) {
+        StudyContent content = new StudyContent(req.getTitle(), req.getSubTitle(), req.getDescription(),
+                req.getSchedule(),req.getJoinCondition(), req.getContact(), req.getField());
+
         LocalDateTime start = parseDateTime(req.getStartDate());
         LocalDateTime end = parseDateTime(req.getEndDate());
+        StudyPeriod period = new StudyPeriod(start, end);
 
-        StudyGroup studyGroup = StudyGroup.builder()
-                .user(principalUser)
-                .field(req.getField())
-                .title(req.getTitle())
-                .subTitle(req.getSubTitle())
-                .recruitingNumber(req.getRecruitingNumber())
-                .totalNumber(req.getTotalNumber())
-                .startDate(start)  // 파싱된 객체 전달
-                .endDate(end)
-                .location(req.getLocation())
-                .description(req.getDescription())
-                .schedule(req.getSchedule())
-                .joinCondition(req.getJoinCondition())
-                .contact(req.getContact())
-                .build();
+        StudyCapacity capacity = new StudyCapacity(req.getCurrentMemberCount());
+
+        StudyGroup studyGroup =
+                StudyGroup.create(principalUser, content, period, capacity, req.getLocation());
 
         studyGroupRepository.save(studyGroup);
 
@@ -83,7 +73,7 @@ public class StudyGroupService {
     // 스터디 그룹 모집 게시글 단건 조회
     public GetStudyGroupByIdRes getStudyGroupById(Long id, User user) {
         StudyGroup studyGroup = studyGroupRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
         boolean isLiked = (user != null) &&
                 studyGroupLikeRepository.existsByStudyGroupAndUserAndIsLiked(studyGroup, user, true);
@@ -95,7 +85,7 @@ public class StudyGroupService {
     @Transactional
     public void updateStudyGroup(Long id, UpdateStudyGroupReq req) {
         StudyGroup studyGroup = studyGroupRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
         // 1. 기본 정보 수정
         studyGroup.updateInfo(
@@ -123,10 +113,10 @@ public class StudyGroupService {
     @Transactional
     public void deleteStudyGroup(Long id) {
         StudyGroup studyGroup = studyGroupRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
         if (studyGroup.getDeletedAt() != null) {
-            throw new CustomException(ErrorCode.ALREADY_DELETE);
+            throw new CustomException(ResultCode.ALREADY_DELETE);
         }
 
         studyGroup.delete();
@@ -135,11 +125,11 @@ public class StudyGroupService {
     // 스터디 그룹 참여 신청
     public void joinStudyGroup(User principalUser, Long studyGroupId) {
         StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
         StudyGroupMember studyGroupMember =
                 studyGroupMemberRepository.findByUserIdAndStudyGroupId(principalUser.getId(), studyGroup)
-                        .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_MEMBER_NOT_FOUND));
+                        .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_MEMBER_NOT_FOUND));
 
         studyGroupMember.applyJoin();
     }
@@ -207,7 +197,7 @@ public class StudyGroupService {
             return LocalDateTime.parse(dateTimeStr);
         } catch (DateTimeParseException e) {
             // 형식이 맞지 않으면 예외 발생 (400 Bad Request)
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ResultCode.INVALID_INPUT_VALUE);
         }
     }
 }
