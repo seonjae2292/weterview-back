@@ -2,53 +2,69 @@ package com.example.weterview.dto.common;
 
 import com.example.weterview.enums.ResultCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Collections;
-
 @Getter
-@JsonInclude(JsonInclude.Include.NON_NULL) // ⭐️ 핵심: null인 필드는 JSON에 포함되지 않음
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
 
+    private final String code;
+    private final String message;
     private final T data;
-    private final ErrorBody error;
 
-    // 생성자를 private으로 막고, 정적 팩토리 메서드만 사용하도록 강제
-    private ApiResponse(T data, ErrorBody error) {
+    // 생성자는 private으로 닫아서 외부에서 new 못하게 막음
+    private ApiResponse(ResultCode resultCode, String message, T data) {
+        this.code = resultCode.getCode();
+        this.message = message;
         this.data = data;
-        this.error = error;
     }
 
-    // 1. 성공 응답 (data만 반환)
+    private ApiResponse(ResultCode resultCode, T data) {
+        this.code = resultCode.getCode();
+        this.message = resultCode.getMessage(); // 메시지는 Enum에서 가져옴 (강제)
+        this.data = data;
+    }
+
+    // ============================
+    // 성공 응답 (200 OK)
+    // ============================
+
+    // 1. 데이터가 있는 성공
     public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>(data, null);
+        return new ApiResponse<>(ResultCode.SUCCESS, data);
     }
 
-    // 성공이지만 반환할 데이터가 없는 경우 (예: 삭제 성공)
-    public static ApiResponse<?> success() {
-        return new ApiResponse<>(Collections.emptyMap(), null);
+    // 2. 데이터가 없는 성공
+    public static <T> ApiResponse<T> success() {
+        return new ApiResponse<>(ResultCode.SUCCESS, null);
     }
 
-    // 2. 실패 응답 (error만 반환)
-    public static ApiResponse<?> fail(String code, String message) {
-        return new ApiResponse<>(null, new ErrorBody(code, message));
+    // ============================
+    // 비즈니스 응답 (200 OK 이지만 특정 상황)
+    // ============================
+
+    // 3. 특정 비즈니스 상황 (예: 회원가입 중복) - 메시지 커스텀 금지
+    public static <T> ApiResponse<T> of(ResultCode resultCode) {
+        return new ApiResponse<>(resultCode, null);
     }
 
-    public static ApiResponse<?> fail(ResultCode resultCode) {
-        return new ApiResponse<>(null, new ErrorBody(resultCode.getCode(), resultCode.getMessage()));
+    // 4. 특정 비즈니스 상황 + 데이터 포함 (예: 가입은 됐는데 추가 정보 필요해서 DTO 내려줌)
+    public static <T> ApiResponse<T> of(ResultCode resultCode, T data) {
+        return new ApiResponse<>(resultCode, data);
     }
 
-    public static ApiResponse<?> fail(ResultCode resultCode, String message) {
-        return new ApiResponse<>(null, new ErrorBody(resultCode.getCode(), message));
+    // ============================
+    // 예외/실패 응답 (GlobalExceptionHandler에서 사용)
+    // ============================
+
+    // 5. 일반적인 에러 처리 (메시지 커스텀 금지, Enum 것만 사용)
+    public static <T> ApiResponse<T> fail(ResultCode resultCode) {
+        return new ApiResponse<>(resultCode, null);
     }
 
-    // 내부 클래스: 에러 구조 정의
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class ErrorBody {
-        private final String code;
-        private final String message;
+    // 6. ★예외★: 입력값 검증(Validation) 실패는 메시지가 동적이어야 함
+    // (예: "이메일 형식이 아닙니다", "비밀번호는 8자 이상..." 등)
+    public static <T> ApiResponse<T> validationFail(ResultCode resultCode, String customMessage) {
+        return new ApiResponse<>(resultCode, customMessage, null);
     }
 }
