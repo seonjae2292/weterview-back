@@ -9,8 +9,8 @@ public class CreateStudyGroupReq {
     private FieldEnum field;
     private String title;
     private String subTitle;
-    private Integer recruitingNumber;
-    private Integer totalNumber;
+    private Integer currentMemberCount;
+    private Integer maxMemberCount;
     private String startDate;
     private String endDate;
     private LocationEnum location;
