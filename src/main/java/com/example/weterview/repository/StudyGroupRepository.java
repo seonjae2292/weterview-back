@@ -1,6 +1,7 @@
 package com.example.weterview.repository;
 
 import com.example.weterview.entity.*;
+import com.example.weterview.entity.studyGroup.StudyGroup;
 import com.example.weterview.enums.studyGroup.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long>,

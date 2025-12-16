@@ -1,6 +1,7 @@
 package com.example.weterview.entity;
 
-import com.example.weterview.enums.ErrorCode;
+import com.example.weterview.entity.studyGroup.StudyGroup;
+import com.example.weterview.enums.ResultCode;
 import com.example.weterview.enums.studyMembership.JoinEnum;
 import com.example.weterview.exception.CustomException;
 import jakarta.persistence.*;
@@ -77,11 +78,11 @@ public class StudyGroupMember {
     // 유효성 검증
     private void validateStatusForAccept() {
         if (this.join == JoinEnum.ACCEPT) {
-            throw new CustomException(ErrorCode.ALREADY_ACCEPTED_MEMBER);
+            throw new CustomException(ResultCode.ALREADY_ACCEPTED_MEMBER);
         }
 
         if(this.join == JoinEnum.REFUSE) {
-            throw new CustomException(ErrorCode.ALREADY_REFUSED_MEMBER);
+            throw new CustomException(ResultCode.ALREADY_REFUSED_MEMBER);
         }
     }
 }

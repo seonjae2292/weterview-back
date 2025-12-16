@@ -2,10 +2,10 @@ package com.example.weterview.service;
 
 import com.example.weterview.dto.studyGroup.request.CreateCommentReq;
 import com.example.weterview.dto.studyGroup.response.StudyGroupCommentRes;
-import com.example.weterview.entity.StudyGroup;
+import com.example.weterview.entity.studyGroup.StudyGroup;
 import com.example.weterview.entity.StudyGroupComment;
 import com.example.weterview.entity.User;
-import com.example.weterview.enums.ErrorCode;
+import com.example.weterview.enums.ResultCode;
 import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.StudyGroupCommentRepository;
 import com.example.weterview.repository.StudyGroupRepository;
@@ -27,7 +27,7 @@ public class StudyGroupCommentService {
     @Transactional
     public void createComment(User principalUser, CreateCommentReq req) {
         StudyGroup studyGroup = studyGroupRepository.findById(Long.parseLong(req.getStudyGroupId()))
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_GROUP_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
         StudyGroupComment studyGroupComment = StudyGroupComment.builder()
                 .user(principalUser)

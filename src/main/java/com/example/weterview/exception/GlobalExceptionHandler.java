@@ -1,7 +1,7 @@
 package com.example.weterview.exception;
 
 import com.example.weterview.dto.common.ApiResponse;
-import com.example.weterview.enums.ErrorCode;
+import com.example.weterview.enums.ResultCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,10 +16,10 @@ public class GlobalExceptionHandler {
     // 비즈니스 로직 예외 (CustomException)
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<?>> handleCustomException(CustomException e) {
-        log.warn("CustomException: {}", e.getErrorCode().getMessage());
+        log.warn("CustomException: {}", e.getResultCode().getMessage());
         return ResponseEntity
-                .status(e.getErrorCode().getHttpStatus())
-                .body(ApiResponse.fail(e.getErrorCode()));
+                .status(e.getResultCode().getHttpStatus())
+                .body(ApiResponse.fail(e.getResultCode()));
     }
 
     // @Valid 유효성 검사 실패
@@ -31,8 +31,8 @@ public class GlobalExceptionHandler {
         log.warn("Validation Failed: {}", errorMessage);
 
         return ResponseEntity
-                .status(ErrorCode.INVALID_INPUT_VALUE.getHttpStatus())
-                .body(ApiResponse.fail(ErrorCode.INVALID_INPUT_VALUE, errorMessage));
+                .status(ResultCode.INVALID_INPUT_VALUE.getHttpStatus())
+                .body(ApiResponse.fail(ResultCode.INVALID_INPUT_VALUE, errorMessage));
     }
 
     // 그 외 예상치 못한 예외
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
         log.error("Unhandled Exception: ", e);
         return ResponseEntity
-                .status(ErrorCode.INTERNAL_SERVER_ERROR.getHttpStatus())
-                .body(ApiResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR));
+                .status(ResultCode.INTERNAL_SERVER_ERROR.getHttpStatus())
+                .body(ApiResponse.fail(ResultCode.INTERNAL_SERVER_ERROR));
     }
 }

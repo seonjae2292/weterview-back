@@ -1,6 +1,5 @@
 package com.example.weterview.repository;
 
-import com.example.weterview.entity.StudyGroup;
 import com.example.weterview.entity.StudyGroupComment;
 import com.example.weterview.entity.User;
 import org.springframework.data.domain.Page;

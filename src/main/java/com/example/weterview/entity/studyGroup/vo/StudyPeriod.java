@@ -1,4 +1,4 @@
-package com.example.weterview.entity.studyGroup;
+package com.example.weterview.entity.studyGroup.vo;
 
 import com.example.weterview.enums.ResultCode;
 import com.example.weterview.exception.CustomException;

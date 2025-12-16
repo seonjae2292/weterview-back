@@ -1,5 +1,6 @@
 package com.example.weterview.entity;
 
+import com.example.weterview.entity.studyGroup.StudyGroup;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
