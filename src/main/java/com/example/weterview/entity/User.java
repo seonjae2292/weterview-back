@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class User {
@@ -43,6 +42,23 @@ public class User {
     @Column(name = "updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    public User(String kakaoUserNumber, String nickname, String kakaoEmail, String gender) {
+        this.kakaoUserNumber = kakaoUserNumber;
+        this.nickname = nickname;
+        this.kakaoEmail = kakaoEmail;
+        this.gender = gender;
+    }
+
+    public static User create(String kakaoUserNumber, String nickname, String kakaoEmail, String gender ) {
+         return User.builder()
+                 .kakaoUserNumber(kakaoUserNumber)
+                 .kakaoEmail(kakaoEmail)
+                 .nickname(nickname)
+                 .gender(gender)
+                 .build();
+    }
 
     public void changeNickname(String newNickname) {
         this.nickname = newNickname;

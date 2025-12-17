@@ -8,6 +8,7 @@ import com.example.weterview.dto.common.response.OurMemberDto;
 import com.example.weterview.dto.common.response.SignupRes;
 import com.example.weterview.dto.common.request.SignupInfoReq;
 import com.example.weterview.entity.User;
+import com.example.weterview.enums.ResultCode;
 import com.example.weterview.repository.UserRepository;
 import com.example.weterview.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.HashMap;
 
 @Slf4j
 @Service
@@ -66,7 +65,7 @@ public class OAuthService {
                                     signupRes.setAccessToken(accessToken);
                                     signupRes.setOurMember(true);
 
-                                    return Mono.just(ApiResponse.ok(signupRes, "기존 사용자 입니다"));
+                                    return Mono.just(ApiResponse.of(ResultCode.REGISTERED_MEMBER, signupRes));
                                 } else {
                                     /// 소셜 로그인 시에 새로운 사용자면 이 시점에 DB에 바로 저장하지 않고
                                     /// isOutMember 값을 false로 응답 주게 되면 프론트에서 추가 정보
@@ -77,7 +76,7 @@ public class OAuthService {
                                     newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
                                     newUserKakaoInfoRes.setOurMember(false);
 
-                                    return Mono.just(ApiResponse.NOT_FOUND(newUserKakaoInfoRes, "새로운 사용자 입니다"));
+                                    return Mono.just(ApiResponse.of(ResultCode.USER_NOT_FOUND, newUserKakaoInfoRes));
                                 }
                             });
                 })
@@ -169,32 +168,21 @@ public class OAuthService {
     }
 
     // 추가 정보 입력 -> 회원가입
-    public ApiResponse<String> signup(SignupInfoReq userInfo) {
+    public boolean signup(SignupInfoReq userInfo) {
         boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
 
         if (isMember) {
-            return ApiResponse.BAD_REQUEST(null, "이미 가입된 회원입니다. 로그인을 해주세요");
-        } else {
-            User newUser = User.builder()
-                    .kakaoUserNumber(userInfo.getKakaoUserNumber())
-                    .nickname(userInfo.getNickname())
-                    .gender(userInfo.getGender())
-                    .kakaoEmail(userInfo.getKakaoEmail())
-                    .build();
-
-            userRepository.save(newUser);
-
-            return ApiResponse.ok(null, "회원가입이 완료되었습니다. 로그인을 해주세요");
+            return false;
         }
+        User newUser = User.create(
+                userInfo.getKakaoUserNumber(), userInfo.getNickname(),
+                userInfo.getKakaoEmail(), userInfo.getGender());
+        userRepository.save(newUser);
+
+        return true;
     }
 
-    public ApiResponse<HashMap<String, Boolean>> isDuplicateNickname(String nickname) {
-        HashMap<String, Boolean> result = new HashMap<>();
-
-        boolean isMember = userRepository.existsByNickname(nickname);
-        result.put("isMember", isMember);
-        String message = isMember ? "중복된 닉네임 입니다." : "사용가능한 닉네임 입니다";
-
-        return ApiResponse.ok(result, message);
+    public boolean isDuplicateNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 }
