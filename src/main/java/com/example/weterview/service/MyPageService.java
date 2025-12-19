@@ -3,6 +3,7 @@ package com.example.weterview.service;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.*;
 import com.example.weterview.dto.studyGroup.response.StudyGroupApplyMemberRes;
+import com.example.weterview.dto.common.response.StudyGroupRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.entity.studyGroup.StudyGroup;
 import com.example.weterview.enums.ResultCode;
@@ -56,7 +57,7 @@ public class MyPageService {
     }
 
     // 내가 개설한 스터디 그룹 모집 게시글 조회
-    public Page<GetHostedStudyGroupRes> getHostedStudyGroups(
+    public Page<StudyGroupRes> getHostedStudyGroups(
             User principalUser, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -64,7 +65,7 @@ public class MyPageService {
         Page<StudyGroup> hostedStudyGroupPage = studyGroupRepository.findByUser(principalUser, pageable);
 
         // 정적 팩토리 메서드 방식
-        return hostedStudyGroupPage.map(GetHostedStudyGroupRes::from);
+        return hostedStudyGroupPage.map(StudyGroupRes::from);
     }
 
     // 내가 참여한 스터디 그룹 모집 게시글 조회
