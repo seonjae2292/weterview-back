@@ -1,14 +1,13 @@
 package com.example.weterview.service;
 
 import com.example.weterview.dto.studyGroup.request.*;
-import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
+import com.example.weterview.dto.common.response.StudyGroupRes;
 import com.example.weterview.entity.*;
 import com.example.weterview.entity.StudyGroupMember;
 import com.example.weterview.entity.studyGroup.StudyGroup;
-import com.example.weterview.entity.studyGroup.vo.StudyCapacity;
 import com.example.weterview.entity.studyGroup.vo.StudyContent;
-import com.example.weterview.entity.studyGroup.vo.StudyPeriod;
 import com.example.weterview.enums.ResultCode;
+import com.example.weterview.enums.studyGroup.LocationEnum;
 import com.example.weterview.enums.studyGroup.StatusEnum;
 import com.example.weterview.exception.CustomException;
 import com.example.weterview.repository.*;
@@ -26,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Service
@@ -41,44 +41,52 @@ public class StudyGroupService {
     // 스터디 그룹 게시글 생성
     @Transactional
     public void createStudyGroup(User principalUser, CreateStudyGroupReq req) {
-        StudyContent content = new StudyContent(req.getTitle(), req.getSubTitle(), req.getDescription(),
-                req.getSchedule(),req.getJoinCondition(), req.getContact(), req.getField());
-
-        LocalDateTime start = parseDateTime(req.getStartDate());
-        LocalDateTime end = parseDateTime(req.getEndDate());
-        StudyPeriod period = new StudyPeriod(start, end);
-
-        StudyCapacity capacity = new StudyCapacity(req.getCurrentMemberCount());
-
-        StudyGroup studyGroup =
-                StudyGroup.create(principalUser, content, period, capacity, req.getLocation());
-
+        StudyGroup studyGroup = req.toEntity(principalUser);
         studyGroupRepository.save(studyGroup);
 
-        // 4. 멤버십 생성 (작성자를 관리자로 등록)
+        // 멤버십 생성 (작성자를 관리자로 등록)
         StudyMembership studyMembership = StudyMembership.create(principalUser, studyGroup);
         studyMembershipRepository.save(studyMembership);
     }
 
     // [검색] 스터디 그룹 조회
-    public Page<StudyGroupRes> getStudyGroup(GetStudyGroupReq req) {
+    public Page<StudyGroupRes> getStudyGroup(User principalUser, GetStudyGroupReq req) {
         Pageable pageable = createPageable(req); // 페이지 조건
         Specification<StudyGroup> spec = buildSpecification(req); // 검색 조건
 
         Page<StudyGroup> studyGroupPage = studyGroupRepository.findAll(spec, pageable);
 
-        return studyGroupPage.map(StudyGroupRes::from);
+        // 비로그인
+        if (principalUser == null) {
+            return studyGroupPage.map(StudyGroupRes::from);
+        }
+
+        // 조회한 스터디 그룹 ID만 추출
+        List<Long> studyIds = studyGroupPage.getContent().stream()
+                .map(StudyGroup::getId)
+                .toList();
+
+        Set<Long> likedStudyIds = studyGroupLikeRepository.findLikedStudyIds(principalUser.getId(), studyIds);
+
+        return studyGroupPage.map(studyGroup -> {
+            boolean isLiked = likedStudyIds.contains(studyGroup.getId());
+            return StudyGroupRes.of(studyGroup, isLiked);
+        });
     }
 
     // 스터디 그룹 모집 게시글 단건 조회
-    public GetStudyGroupByIdRes getStudyGroupById(Long id, User user) {
+    public StudyGroupRes getStudyGroupById(Long id, User principalUser) {
         StudyGroup studyGroup = studyGroupRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
-        boolean isLiked = (user != null) &&
-                studyGroupLikeRepository.existsByStudyGroupAndUserAndIsLiked(studyGroup, user, true);
+        if (principalUser == null) {
+            return StudyGroupRes.from(studyGroup);
+        }
 
-        return GetStudyGroupByIdRes.from(studyGroup, isLiked);
+        boolean isLiked = studyGroupLikeRepository
+                .existsByStudyGroupAndUserAndIsLiked(studyGroup, principalUser, true);
+
+        return StudyGroupRes.of(studyGroup, isLiked);
     }
 
     // 스터디 그룹 수정
@@ -87,26 +95,22 @@ public class StudyGroupService {
         StudyGroup studyGroup = studyGroupRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
-        // 1. 기본 정보 수정
-        studyGroup.updateInfo(
-                req.getTitle(),
-                req.getSubTitle(),
-                req.getField(),
-                req.getLocation(),
-                req.getDescription(),
-                req.getJoinCondition(),
-                req.getContact()
-        );
+        StudyContent mergedContent = req.toContent(studyGroup.getContent());
+        LocationEnum mergedLocation =
+                req.getLocation() != null ? req.getLocation() : studyGroup.getLocation();
 
-        LocalDateTime start = parseDateTime(req.getStartDate());
-        LocalDateTime end = parseDateTime(req.getEndDate());
-        studyGroup.reschedule(req.getSchedule(), start, end);
+        // 기본 정보 수정
+        studyGroup.updateInfo(mergedContent, mergedLocation);
 
-        // 3. 인원 변경
-        studyGroup.updateRecruitment(req.getRecruitingNumber(), req.getTotalNumber());
+        // 시간 수정
+        if(studyGroup.getPeriod() != null){
+            studyGroup.reschedule(req.toPeriod());
+        }
 
-        // 4. 상태 변경
-        studyGroup.changeStatus(req.getStatus());
+        // 인원 변경
+        if (req.getRecruitingNumber() != null) {
+            studyGroup.updateRecruitment(req.getRecruitingNumber());
+        }
     }
 
     // 스터디 그룹 삭제(soft)
@@ -116,7 +120,7 @@ public class StudyGroupService {
                 .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
         if (studyGroup.getDeletedAt() != null) {
-            throw new CustomException(ResultCode.ALREADY_DELETE);
+            throw new CustomException(ResultCode.ALREADY_DELETED_STUDY_GROUP);
         }
 
         studyGroup.delete();
