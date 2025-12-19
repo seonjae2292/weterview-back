@@ -19,11 +19,15 @@ public class StudyPeriod {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    public StudyPeriod(LocalDateTime startDate, LocalDateTime endDate) {
+    private StudyPeriod(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate.isAfter(endDate)) {
             throw new CustomException(ResultCode.INVALID_DATE_RANGE);
         }
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public static StudyPeriod of(LocalDateTime startDate, LocalDateTime endDate) {
+        return new StudyPeriod(startDate, endDate);
     }
 }
