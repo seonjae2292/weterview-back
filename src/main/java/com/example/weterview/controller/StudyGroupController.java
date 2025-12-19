@@ -4,7 +4,7 @@ import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.StudyGroupCommentRes;
-import com.example.weterview.dto.studyGroup.response.StudyGroupRes;
+import com.example.weterview.dto.common.response.StudyGroupRes;
 import com.example.weterview.service.StudyGroupCommentService;
 import com.example.weterview.service.StudyGroupLikeService;
 import com.example.weterview.service.StudyGroupService;
@@ -45,10 +45,10 @@ public class StudyGroupController {
 
     // 스터디 그룹 모집 게시글 단건 조회
     @GetMapping("/get/{id}")
-    public ApiResponse<GetStudyGroupByIdRes> getStudyGroupById(
+    public ApiResponse<StudyGroupRes> getStudyGroupById(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        GetStudyGroupByIdRes response = studyGroupService.getStudyGroupById(id, customUserDetails.getUser());
+        StudyGroupRes response = studyGroupService.getStudyGroupById(id, customUserDetails.getUser());
         return ApiResponse.success(response);
     }
 

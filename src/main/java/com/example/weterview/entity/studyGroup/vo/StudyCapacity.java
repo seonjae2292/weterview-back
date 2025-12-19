@@ -15,9 +15,13 @@ public class StudyCapacity {
     private int currentMemberCount;
     private int maxMemberCount;
 
-    public StudyCapacity(int maxMemberCount) {
+    private StudyCapacity(int maxMemberCount) {
         this.currentMemberCount = 1;
         this.maxMemberCount = maxMemberCount;
+    }
+
+    public static StudyCapacity from(int maxMemberCount) {
+        return new StudyCapacity(maxMemberCount);
     }
 
     public boolean isFull() {
