@@ -107,14 +107,14 @@ public class MyPageService {
     }
 
     // 내가 좋아요한 게시글 조회
-    public Page<GetLikedPostRes> getLikedPosts(User principalUser, int pageNumber, int pageSize) {
+    public Page<StudyGroupRes> getLikedPosts(User principalUser, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<StudyGroupLike> studyGroupLikes =
-                studyGroupLikeRepository.findByUserAndIsLiked(principalUser, true, pageable);
+        Page<StudyGroup> likedStudyGroupList =
+                studyGroupRepository.findByUserAndIsLiked(principalUser, pageable);
 
-        return studyGroupLikes.map(GetLikedPostRes::from);
+        return likedStudyGroupList.map(StudyGroupRes::from);
     }
 
     // 댓글단 게시글 조회
