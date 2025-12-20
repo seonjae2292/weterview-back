@@ -35,5 +35,13 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long>,
             countQuery = "select count(sgl) from StudyGroupLike sgl " +
                     "where sgl.user = :user and sgl.isLiked = true")
     Page<StudyGroup> findByUserAndIsLiked(@Param("user") User user, Pageable pageable);
+
+    // 내가 참여한 스터디 그룹 게시글 조회
+    @Query(value = "select sgm.studyGroup from StudyGroupMember sgm " +
+            "join sgm.studyGroup " +
+            "where sgm.user = :user",
+    countQuery = "select count(sgm) from StudyGroupMember sgm " +
+            "where sgm.user = :user")
+    Page<StudyGroup> findJoinedByUserByUser(@Param("user") User user, Pageable pageable);
 }
 
