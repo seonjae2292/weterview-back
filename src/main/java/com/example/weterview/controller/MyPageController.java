@@ -2,6 +2,7 @@ package com.example.weterview.controller;
 
 import com.example.weterview.config.CustomUserDetails;
 import com.example.weterview.dto.common.ApiResponse;
+import com.example.weterview.dto.common.response.StudyGroupRes;
 import com.example.weterview.dto.myPage.request.UpdateNicknameReq;
 import com.example.weterview.dto.myPage.response.*;
 import com.example.weterview.dto.studyGroup.response.StudyGroupApplyMemberRes;
@@ -47,23 +48,23 @@ public class MyPageController {
 
     // 내가 개설한 스터디 그룹 모집 게시글 조회
     @GetMapping("/hosted-study-groups")
-    public ApiResponse<?> getHostedStudyGroups(
+    public ApiResponse<Page<StudyGroupRes>> getHostedStudyGroups(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize
     ) {
-        Page<GetHostedStudyGroupRes> response = myPageService.getHostedStudyGroups(
+        Page<StudyGroupRes> response = myPageService.getHostedStudyGroups(
                 customUserDetails.getUser(), pageNumber - 1, pageSize);
         return ApiResponse.success(response);
     }
 
     // 내가 참여한 스터디 그룹 모집 게시글 조회
     @GetMapping("/joined-study-groups")
-    public ApiResponse<?> getJoinedStudyGroups(
+    public ApiResponse<Page<StudyGroupRes>> getJoinedStudyGroups(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        Page<GetJoinedStudyGroupRes> response =
+        Page<StudyGroupRes> response =
                 myPageService.getJoinedStudyGroups(customUserDetails.getUser(), pageNumber - 1, pageSize);
         return ApiResponse.success(response);
     }
@@ -91,11 +92,11 @@ public class MyPageController {
 
     // 내가 좋아요한 게시글 조회
     @GetMapping("/likes/posts")
-    public ApiResponse<Page<GetLikedPostRes>> getLikePost(
+    public ApiResponse<Page<StudyGroupRes>> getLikePost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        Page<GetLikedPostRes> response =
+        Page<StudyGroupRes> response =
                 myPageService.getLikedPosts(customUserDetails.getUser(), pageNumber - 1, pageSize);
         return ApiResponse.success(response);
     }
