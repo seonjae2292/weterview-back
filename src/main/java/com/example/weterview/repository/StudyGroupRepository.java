@@ -27,5 +27,21 @@ public interface StudyGroupRepository extends JpaRepository<StudyGroup, Long>,
 
     @Query("select sg from StudyGroup sg where sg.status = :status order by sg.createdAt DESC")
     List<StudyGroup> findLatestByStatus(@Param("status") StatusEnum status, Pageable pageable);
+
+    // 내가 좋아요한 게시글 목록
+    @Query(value = "select sgl.studyGroup from StudyGroupLike sgl " +
+            "join sgl.studyGroup " +
+            "where sgl.user = :user and sgl.isLiked = true",
+            countQuery = "select count(sgl) from StudyGroupLike sgl " +
+                    "where sgl.user = :user and sgl.isLiked = true")
+    Page<StudyGroup> findByUserAndIsLiked(@Param("user") User user, Pageable pageable);
+
+    // 내가 참여한 스터디 그룹 게시글 조회
+    @Query(value = "select sgm.studyGroup from StudyGroupMember sgm " +
+            "join sgm.studyGroup " +
+            "where sgm.user = :user",
+    countQuery = "select count(sgm) from StudyGroupMember sgm " +
+            "where sgm.user = :user")
+    Page<StudyGroup> findJoinedByUserByUser(@Param("user") User user, Pageable pageable);
 }
 
