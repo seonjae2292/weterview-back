@@ -69,15 +69,15 @@ public class MyPageService {
     }
 
     // 내가 참여한 스터디 그룹 모집 게시글 조회
-    public Page<GetJoinedStudyGroupRes> getJoinedStudyGroups(
+    public Page<StudyGroupRes> getJoinedStudyGroups(
             User principalUser, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "appliedAt"));
 
-        Page<StudyGroupMember> members =
-                studyGroupMemberRepository.findByUser(principalUser, pageable);
+        Page<StudyGroup> joinedStudyGroupList =
+                studyGroupRepository.findJoinedByUserByUser(principalUser, pageable);
 
-        return members.map(GetJoinedStudyGroupRes::from);
+        return joinedStudyGroupList.map(StudyGroupRes::from);
     };
 
     /// 스터디 그룹 신청 수락
