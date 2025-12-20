@@ -38,8 +38,9 @@ public class StudyGroupController {
     // [검색] 스터디 그룹 조회
     @GetMapping("/get")
     public ApiResponse<?> getStudyGroup(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute @Valid GetStudyGroupReq req) {
-        Page<StudyGroupRes> response = studyGroupService.getStudyGroup(req);
+        Page<StudyGroupRes> response = studyGroupService.getStudyGroup(customUserDetails.getUser(), req);
         return ApiResponse.success(response);
     }
 
