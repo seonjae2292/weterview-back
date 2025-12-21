@@ -50,8 +50,8 @@ jobs:
       # 이미지 태그를 latest로 고정합니다. (실무에선 버전 관리를 위해 commit hash 등을 씀)
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/my-server:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-server:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
 
       # 6. EC2에 SSH 접속해서 배포 명령어 실행
       - name: Deploy to EC2
