@@ -37,5 +37,9 @@ out/
 .vscode/
 
 ### secret keys
+local-secret.yml
+**/local-secret.yml
 dev-secret.yml
 **/dev-secret.yml
+
+**/application-local.yml
