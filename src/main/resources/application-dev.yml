@@ -2,16 +2,17 @@ spring:
   config:
     activate:
       on-profile: dev
+    import: dev-secret.yml
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${secret.datasource.url}
+    username: ${secret.datasource.username}
+    password: ${secret.datasource.password}
 
   jpa:
     hibernate:
-      ddl-auto: update  # (처음엔 update로 해서 테이블 만들어지게 설정)
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: true
@@ -22,10 +23,9 @@ spring:
       client:
         registration:
           kakao:
-            # [수정 3] 값을 직접 넣지 않고 대문자 변수명으로 변경
-            client-id: ${KAKAO_CLIENT_ID}
-            client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: ${KAKAO_REDIRECT_URI}
+            client-id: ${secret.kakao.client_id}
+            client-secret: ${secret.kakao.client_secret}
+            redirect-uri: ${secret.kakao.redirect_uri}
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             scope: profile_nickname, profile_image, account_email
@@ -38,9 +38,9 @@ spring:
 
 # [수정 4] JWT 관련 설정도 환경변수로 변경
 jwt:
-  secret-key: ${JWT_SECRET_KEY}
-  access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
-  refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+  secret-key: ${secret.jwt.secret-key}
+  access-token-expiration: ${secret.jwt.access-token-expiration}
+  refresh-token-expiration: ${secret.jwt.refresh-token-expiration}
 
 kakao:
   token-info-url: https://kauth.kakao.com/oauth/tokeninfo
