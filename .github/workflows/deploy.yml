@@ -20,6 +20,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # [추가] 중요! Git에 없는 dev-secret.yml을 생성하는 단계
+      - name: Create dev-secret.yml
+        shell: bash
+        run: |
+          # resources 폴더가 없으면 만들고
+          mkdir -p ./src/main/resources
+
+          # GitHub Secret에 저장된 내용을 파일로 씀
+          echo "${{ secrets.DEV_SECRET_YML }}" > ./src/main/resources/dev-secret.yml
+
+          # 확인용 (내용은 안 보여주고 파일이 생겼는지만 확인)
+          ls -al ./src/main/resources
+
       # 3. Gradle 빌드 (테스트 제외 옵션 추가함 - 실무에선 테스트 포함 권장)
       - name: Build with Gradle
         run: |
@@ -49,17 +62,17 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # 현재 실행 중인 컨테이너가 있다면 중지하고 삭제 (없으면 에러 무시하고 넘어감 || true)
-            sudo docker stop my-server || true
-            sudo docker rm my-server || true
+            sudo docker stop weterview-server || true
+            sudo docker rm weterview-server || true
             
             # 기존 이미지 삭제 (용량 확보 및 최신 이미지 반영)
-            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/my-server:latest || true
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest || true
             
             # 최신 이미지 다운로드
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/my-server:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
             
             # 새 컨테이너 실행 (RDS 접속 정보 등은 여기서 환경변수 -e 로 넘겨줄 수도 있음)
-            sudo docker run -d --name my-server -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/my-server:latest
+            sudo docker run -d --name weterview-server -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
             
             # 필요 없는 이미지(dangling images) 정리
             sudo docker image prune -f
