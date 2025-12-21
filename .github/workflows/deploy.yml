@@ -40,7 +40,7 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/my-server:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/my-server:latest
 
-      # 6. EC2에 SSH 접속해서 배포 명령어 실행 (가장 중요한 부분)
+      # 6. EC2에 SSH 접속해서 배포 명령어 실행
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
