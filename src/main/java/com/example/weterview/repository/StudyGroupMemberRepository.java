@@ -23,4 +23,5 @@ public interface StudyGroupMemberRepository extends JpaRepository<StudyGroupMemb
 
     Optional<StudyGroupMember> findByUserIdAndStudyGroupId(Long userId, StudyGroup studyGroup);
 
+    boolean existsByUserAndStudyGroup(User user, StudyGroup studyGroup);
 }
