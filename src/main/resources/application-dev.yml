@@ -2,7 +2,7 @@ spring:
   config:
     activate:
       on-profile: dev
-    import: dev-secret.yml
+    import: classpath:dev-secret.yml
 
   datasource:
     driver-class-name: org.postgresql.Driver
