@@ -25,10 +25,10 @@ jobs:
         shell: bash
         run: |
           # resources 폴더가 없으면 만들고
-          mkdir -p ./src/main/resources
+          mkdir -p ./weterview-server/src/main/resources
 
           # GitHub Secret에 저장된 내용을 파일로 씀
-          echo "${{ secrets.DEV_SECRET_YML }}" > ./src/main/resources/dev-secret.yml
+          echo "${{ secrets.DEV_SECRET_YML }}" > ./weterview-server/src/main/resources/dev-secret.yml
 
           # 확인용 (내용은 안 보여주고 파일이 생겼는지만 확인)
           ls -al ./src/main/resources
