@@ -64,7 +64,7 @@ jobs:
 
             # 3. 새 컨테이너 실행 (다운타임 종료)
             # --network host 등 필요한 네트워크 설정이 있다면 추가
-            sudo docker run -d --name weterview-server -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
+            sudo docker run -d --name weterview-server -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
 
             # 4. 미사용 이미지 정리 (공간 확보)
             sudo docker image prune -f
