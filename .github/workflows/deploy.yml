@@ -17,7 +17,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # [보안 경고] Docker Hub 리포지토리가 Private인지 꼭 확인해라!
+      # github repo에는 dev-secret.yml 파일이 안올라가니
+      # github action에서 미리 환경변수에 입력해 놓은 DEV_SECRET_YML을 가져와서
+      # 프로젝트 "/src/main/resources" 경로에 dev-secret.yml 파일을 만든다.
       - name: Create dev-secret.yml
         shell: bash
         run: |
@@ -25,23 +27,43 @@ jobs:
           echo "${{ secrets.DEV_SECRET_YML }}" > ./src/main/resources/dev-secret.yml
           ls -al ./src/main/resources
 
+      # dev-secret.yml 파일이 생성된 상태에서 프로젝트를 build 하여
+      # JAR 파일 생성
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
           ./gradlew build -x test
 
+      - name: Debug - Check JAR content
+        run: |
+          echo "=========================================="
+          echo "Checking file existence before build..."
+          ls -al ./src/main/resources/dev-secret.yml
+          
+          echo "------------------------------------------"
+          echo "Checking built JAR file name..."
+          ls -al build/libs/
+          
+          echo "------------------------------------------"
+          echo "Looking for dev-secret.yml inside the JAR..."
+          
+          jar tf build/libs/*SNAPSHOT.jar | grep dev-secret.yml
+          echo "=========================================="
+
+      # Docker Hub 접속
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # JAR 파일을 Dockerfile에 때하 docker image로 만들고
+      # docker hub에 push
       - name: Build and Push Docker Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
 
-      # [개선] 배포 스크립트 최적화 (Zero Downtime에 가깝게)
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
