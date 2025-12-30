@@ -2,77 +2,63 @@ name: Deploy to EC2 with Docker
 
 on:
   push:
-    branches: [ "develop" ] # develop 브랜치에 push 되면 실행
+    branches: [ "develop" ]
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest # GitHub이 제공하는 빌드용 컴퓨터(우분투)
-
+    runs-on: ubuntu-latest
     steps:
-      # 1. 내 코드 가져오기
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # 2. JDK 17 세팅 (프로젝트 버전에 맞게 수정)
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      # [추가] 중요! Git에 없는 dev-secret.yml을 생성하는 단계
+      # [보안 경고] Docker Hub 리포지토리가 Private인지 꼭 확인해라!
       - name: Create dev-secret.yml
         shell: bash
         run: |
-          # resources 폴더가 없으면 만들고
-          mkdir -p ./weterview-server/src/main/resources
-
-          # GitHub Secret에 저장된 내용을 파일로 씀
-          echo "${{ secrets.DEV_SECRET_YML }}" > ./weterview-server/src/main/resources/dev-secret.yml
-
-          # 확인용 (내용은 안 보여주고 파일이 생겼는지만 확인)
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.DEV_SECRET_YML }}" > ./src/main/resources/dev-secret.yml
           ls -al ./src/main/resources
 
-      # 3. Gradle 빌드 (테스트 제외 옵션 추가함 - 실무에선 테스트 포함 권장)
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
           ./gradlew build -x test
 
-      # 4. Docker Hub 로그인 (이미지 업로드 위함)
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 5. Docker 이미지 빌드 & Push
-      # 이미지 태그를 latest로 고정합니다. (실무에선 버전 관리를 위해 commit hash 등을 씀)
       - name: Build and Push Docker Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
 
-      # 6. EC2에 SSH 접속해서 배포 명령어 실행
+      # [개선] 배포 스크립트 최적화 (Zero Downtime에 가깝게)
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu # EC2 기본 유저명 (Amazon Linux 2라면 ec2-user)
+          username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
-            # 현재 실행 중인 컨테이너가 있다면 중지하고 삭제 (없으면 에러 무시하고 넘어감 || true)
+            # 1. [중요] 새 이미지를 '먼저' 받는다. (서버가 살아있는 상태에서 진행됨)
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
+
+            # 2. 기존 컨테이너 중지 및 삭제 (다운타임 시작 - 최소화)
             sudo docker stop weterview-server || true
             sudo docker rm weterview-server || true
-            
-            # 기존 이미지 삭제 (용량 확보 및 최신 이미지 반영)
-            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest || true
-            
-            # 최신 이미지 다운로드
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
-            
-            # 새 컨테이너 실행 (RDS 접속 정보 등은 여기서 환경변수 -e 로 넘겨줄 수도 있음)
+
+            # 3. 새 컨테이너 실행 (다운타임 종료)
+            # --network host 등 필요한 네트워크 설정이 있다면 추가
             sudo docker run -d --name weterview-server -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/weterview-server:latest
-            
-            # 필요 없는 이미지(dangling images) 정리
+
+            # 4. 미사용 이미지 정리 (공간 확보)
             sudo docker image prune -f
