@@ -54,6 +54,6 @@ tasks.named('jar') {
 }
 
 // 빌드할 때 제외
-bootJar {
-	rootSpec.exclude("**/dev-secret.yml")
-}
+//bootJar {
+//	rootSpec.exclude("**/dev-secret.yml")
+//}
