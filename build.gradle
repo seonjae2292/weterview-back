@@ -24,36 +24,41 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	/* Spring Boot Starters */
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	compileOnly 'org.projectlombok:lombok'
-//	runtimeOnly 'com.mysql:mysql-connector-j'
-	runtimeOnly 'org.postgresql:postgresql'
+	/* Swagger (Spring Boot 3 / MVC) */
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	/* JWT */
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
+
+	/* Database */
+	runtimeOnly 'org.postgresql:postgresql'
+
+	/* Lombok */
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	/* Test */
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'io.projectreactor:reactor-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
 
-//plain.jar 생기지 않게
-tasks.named('jar') {
-	enabled = false
-}
-
-// 빌드할 때 제외
-//bootJar {
-//	rootSpec.exclude("**/dev-secret.yml")
+/*
+   plain.jar 생성 방지
+*/
+//tasks.named('jar') {
+//	enabled = false
 //}
