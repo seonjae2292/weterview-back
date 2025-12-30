@@ -45,8 +45,8 @@ public class StudyGroupService {
         studyGroupRepository.save(studyGroup);
 
         // 멤버십 생성 (작성자를 관리자로 등록)
-        StudyMembership studyMembership = StudyMembership.create(principalUser, studyGroup);
-        studyMembershipRepository.save(studyMembership);
+//        StudyMembership studyMembership = StudyMembership.create(principalUser, studyGroup);
+//        studyMembershipRepository.save(studyMembership);
     }
 
     // [검색] 스터디 그룹 조회
