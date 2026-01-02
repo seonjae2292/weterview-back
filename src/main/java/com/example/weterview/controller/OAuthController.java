@@ -2,7 +2,8 @@ package com.example.weterview.controller;
 
 import com.example.weterview.dto.common.request.SignupInfoReq;
 import com.example.weterview.dto.common.ApiResponse;
-import com.example.weterview.dto.common.response.OurMemberDto;
+import com.example.weterview.dto.common.response.KakaoLoginRes;
+import com.example.weterview.dto.common.response.KakaoLoginSuccessRes;
 import com.example.weterview.enums.ResultCode;
 import com.example.weterview.service.OAuthService;
 import lombok.RequiredArgsConstructor;
@@ -21,21 +22,18 @@ public class OAuthController {
     private final OAuthService oAuthService;
 
     @GetMapping("/kakao/callback")
-    public Mono<ApiResponse<? extends OurMemberDto>> getAuthorizeToken(@RequestParam("code") String code) {
+    public Mono<ApiResponse<? extends KakaoLoginRes>> getAuthorizeToken(@RequestParam("code") String code) {
         return oAuthService.postVerifyUserToKakao(code);
     }
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
-    public ApiResponse<?> signup(@RequestBody SignupInfoReq request) {
-        boolean isUser = oAuthService.signup(request);
-
-        if(!isUser) {
-            return ApiResponse.of(ResultCode.REGISTERED_MEMBER);
-        }
-
-        return ApiResponse.success();
+    public ApiResponse<KakaoLoginSuccessRes> signup(@RequestBody SignupInfoReq request) {
+        KakaoLoginSuccessRes result = oAuthService.signup(request);
+        return ApiResponse.success(result);
     }
-
 
     // 닉네임 중복 확인
     @GetMapping("/verify/duplicate/nickname")

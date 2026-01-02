@@ -3,9 +3,9 @@ package com.example.weterview.service;
 import com.example.weterview.dto.*;
 import com.example.weterview.dto.common.ApiResponse;
 
-import com.example.weterview.dto.common.response.NewUserKakaoInfoRes;
-import com.example.weterview.dto.common.response.OurMemberDto;
-import com.example.weterview.dto.common.response.SignupRes;
+import com.example.weterview.dto.common.response.KakaoLoginRes;
+import com.example.weterview.dto.common.response.KakaoLoginSuccessRes;
+import com.example.weterview.dto.common.response.KakaoSignupRequiredRes;
 import com.example.weterview.dto.common.request.SignupInfoReq;
 import com.example.weterview.entity.User;
 import com.example.weterview.enums.ResultCode;
@@ -49,7 +49,7 @@ public class OAuthService {
     @Value("${kakao.token-info-url}")
     private String kakaoInfoUrl;
 
-    public Mono<ApiResponse<? extends OurMemberDto>> postVerifyUserToKakao(String code) {
+    public Mono<ApiResponse<? extends KakaoLoginRes>> postVerifyUserToKakao(String code) {
         return getKakaoToken(code)
                 .flatMap(this::getKakaoUserInfo)
                 .flatMap(kakaoInfoFromIdToken -> {
@@ -59,24 +59,13 @@ public class OAuthService {
                     return doesUserExistOurService(kakaoUserNumber)
                             .flatMap(isOurService -> {
                                 if (isOurService) {
-                                    SignupRes signupRes = new SignupRes();
                                     String accessToken = jwtUtil.generateAccessToken(kakaoUserNumber, kakaoUserNumber);
 
-                                    signupRes.setAccessToken(accessToken);
-                                    signupRes.setOurMember(true);
-
-                                    return Mono.just(ApiResponse.of(ResultCode.REGISTERED_MEMBER, signupRes));
+                                    return Mono.just(ApiResponse.of(ResultCode.REGISTERED_MEMBER,
+                                            KakaoLoginSuccessRes.create(accessToken)));
                                 } else {
-                                    /// 소셜 로그인 시에 새로운 사용자면 이 시점에 DB에 바로 저장하지 않고
-                                    /// isOutMember 값을 false로 응답 주게 되면 프론트에서 추가 정보
-                                    /// 입력 후에 DB에 저장 될 수 있게 할 것
-                                    NewUserKakaoInfoRes newUserKakaoInfoRes = new NewUserKakaoInfoRes();
-
-                                    newUserKakaoInfoRes.setKakaoUniqueId(kakaoUserNumber);
-                                    newUserKakaoInfoRes.setKakaoEmail(kakaoEmail);
-                                    newUserKakaoInfoRes.setOurMember(false);
-
-                                    return Mono.just(ApiResponse.of(ResultCode.USER_NOT_FOUND, newUserKakaoInfoRes));
+                                    return Mono.just(ApiResponse.of(ResultCode.USER_NOT_FOUND,
+                                            KakaoSignupRequiredRes.create(kakaoUserNumber, kakaoEmail)));
                                 }
                             });
                 })
@@ -151,14 +140,15 @@ public class OAuthService {
 
     /**
      * 고유회원번호가 디비에 있는지 조회
-     * @param memberUniqueId 고유회원번호
+     * @param kakaoUserNumber 고유회원번호
      * @return
      */
-    private Mono<Boolean> doesUserExistOurService(String memberUniqueId) {
-        if (memberUniqueId == null || memberUniqueId.trim().isEmpty()) {
+    private Mono<Boolean> doesUserExistOurService(String kakaoUserNumber) {
+        if (kakaoUserNumber == null || kakaoUserNumber.trim().isEmpty()) {
             return Mono.error(new IllegalArgumentException("Kakao user ID is null or empty"));
         }
-        return Mono.fromCallable(() -> userRepository.findByKakaoUserNumber(memberUniqueId).isPresent())
+
+        return Mono.fromCallable(() -> userRepository.findByKakaoUserNumber(kakaoUserNumber).isPresent())
                 .subscribeOn(Schedulers.boundedElastic());
         // 구독이 일어나야 실행된다.
         // 내부의 람다가 실행되는 스레드를 Schedulers.boundedElastic()에서 가져오도록 지정
@@ -167,19 +157,21 @@ public class OAuthService {
         // 즉, 직접 수행하는것이 아닌 외주를 맡긴다고 생각
     }
 
-    // 추가 정보 입력 -> 회원가입
-    public boolean signup(SignupInfoReq userInfo) {
-        boolean isMember = userRepository.existsByKakaoUserNumber(userInfo.getKakaoUserNumber());
+    /**
+     * 회원가입
+     */
+    public KakaoLoginSuccessRes signup(SignupInfoReq userInfo) {
+        String accessToken = jwtUtil.generateAccessToken(
+                userInfo.getKakaoUserNumber(), userInfo.getKakaoUserNumber());
 
-        if (isMember) {
-            return false;
-        }
+        // 사용자 등록
         User newUser = User.create(
                 userInfo.getKakaoUserNumber(), userInfo.getNickname(),
                 userInfo.getKakaoEmail(), userInfo.getGender());
+
         userRepository.save(newUser);
 
-        return true;
+        return KakaoLoginSuccessRes.create(accessToken);
     }
 
     public boolean isDuplicateNickname(String nickname) {
