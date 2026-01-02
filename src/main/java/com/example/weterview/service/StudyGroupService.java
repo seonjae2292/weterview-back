@@ -141,7 +141,7 @@ public class StudyGroupService {
     // 인기있는 스터디 그룹 조회
     public Page<StudyGroupRes> getPopularStudyGroup(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize,
-                Sort.by(Sort.Direction.DESC));
+                Sort.by(Sort.Direction.DESC, "createdAt"));
 
         Page<StudyGroup> popularStudyGroup =
                 studyGroupRepository.findPopularByApplicationCount(StatusEnum.RECRUITING, pageable);
