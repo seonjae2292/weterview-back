@@ -18,10 +18,8 @@ public class CreateStudyGroupReq {
     private FieldEnum field;
     private String joinCondition;
     private String description;
-    private String contact;
     private String schedule;
 
-    private Integer currentMemberCount;
     private Integer maxMemberCount;
 
     private String startDate;
@@ -36,7 +34,6 @@ public class CreateStudyGroupReq {
                 .field(this.field)
                 .joinCondition(this.joinCondition)
                 .description(this.description)
-                .contact(this.contact)
                 .schedule(this.schedule)
                 .build();
 
