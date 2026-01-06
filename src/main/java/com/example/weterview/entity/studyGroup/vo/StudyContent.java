@@ -26,9 +26,6 @@ public class StudyContent {
     @Comment(value = "스터디에 참가할 수 있는 조건 ex) java에 대한 기본기가 있으면 좋겠습니다.")
     private String joinCondition;
 
-    @Comment(value = "연락할 수 있는 방법 ")
-    private String contact;
-
     @Enumerated(EnumType.STRING)
     private FieldEnum field;
 
@@ -37,7 +34,7 @@ public class StudyContent {
 
     @Builder
     public StudyContent(String title, String subTitle, String description,
-                        String joinCondition, String contact, String schedule, FieldEnum field) {
+                        String joinCondition, String schedule, FieldEnum field) {
         if (title == null || title.isBlank()) {
             throw new CustomException(ResultCode.INVALID_INPUT_VALUE, "제목은 필수입니다.");
         }
@@ -49,7 +46,6 @@ public class StudyContent {
         this.subTitle = subTitle;
         this.description = description;
         this.joinCondition = joinCondition;
-        this.contact = contact;
         this.schedule = schedule;
         this.field = field;
     }

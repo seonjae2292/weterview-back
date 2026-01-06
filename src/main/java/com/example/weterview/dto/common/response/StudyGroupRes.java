@@ -23,6 +23,7 @@ public class StudyGroupRes {
     private String subTitle;
     private LocationEnum location;
     private String description;
+    private String joinCondition;
     private Integer currentMemberCount;
     private Integer maxMemberCount;
     private LocalDateTime startDate;
@@ -43,6 +44,7 @@ public class StudyGroupRes {
                 .subTitle(studyGroup.getContent().getSubTitle())
                 .location(studyGroup.getLocation())
                 .description(studyGroup.getContent().getDescription())
+                .joinCondition(studyGroup.getContent().getJoinCondition())
                 .currentMemberCount(studyGroup.getCapacity().getCurrentMemberCount())
                 .maxMemberCount(studyGroup.getCapacity().getMaxMemberCount())
                 .startDate(studyGroup.getPeriod().getStartDate())

@@ -29,7 +29,6 @@ public class UpdateStudyGroupReq {
                 .description(this.description != null ? this.description : current.getDescription())
                 .schedule(this.schedule != null ? this.schedule : current.getSchedule())
                 .joinCondition(this.joinCondition != null ? this.joinCondition : current.getJoinCondition())
-                .contact(this.contact != null ? this.contact : current.getContact())
                 .field(this.field != null ? this.field : current.getField())
                 .build();
     }
