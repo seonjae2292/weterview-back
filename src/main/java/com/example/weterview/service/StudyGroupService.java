@@ -40,13 +40,14 @@ public class StudyGroupService {
 
     // 스터디 그룹 게시글 생성
     @Transactional
-    public void createStudyGroup(User principalUser, CreateStudyGroupReq req) {
+    public StudyGroupRes createStudyGroup(User principalUser, CreateStudyGroupReq req) {
         StudyGroup studyGroup = req.toEntity(principalUser);
-        studyGroupRepository.save(studyGroup);
+        StudyGroup result = studyGroupRepository.save(studyGroup);
 
-        // 멤버십 생성 (작성자를 관리자로 등록)
-//        StudyMembership studyMembership = StudyMembership.create(principalUser, studyGroup);
-//        studyMembershipRepository.save(studyMembership);
+        StudyMembership studyMembership = StudyMembership.create(principalUser, result);
+        studyMembershipRepository.save(studyMembership);
+
+        return StudyGroupRes.from(result);
     }
 
     // [검색] 스터디 그룹 조회
