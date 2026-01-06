@@ -28,11 +28,11 @@ public class StudyGroupController {
 
     // 스터디 그룹 모집 게시글 생성
     @PostMapping("/create")
-    public ApiResponse<?> createStudyGroup(
+    public ApiResponse<StudyGroupRes> createStudyGroup(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody CreateStudyGroupReq req) {
-        studyGroupService.createStudyGroup(customUserDetails.getUser(), req);
-        return ApiResponse.success();
+        StudyGroupRes result = studyGroupService.createStudyGroup(customUserDetails.getUser(), req);
+        return ApiResponse.success(result);
     }
 
     // [검색] 스터디 그룹 조회
