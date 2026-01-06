@@ -43,7 +43,6 @@ public class GetCommentedStudyGroupRes {
                 .description(studyGroupComment.getStudyGroup().getContent().getDescription())
                 .schedule(studyGroupComment.getStudyGroup().getContent().getSchedule())
                 .joinCondition(studyGroupComment.getStudyGroup().getContent().getJoinCondition())
-                .contact(studyGroupComment.getStudyGroup().getContent().getContact())
                 .currentMemberCount(studyGroupComment.getStudyGroup().getCapacity().getCurrentMemberCount())
                 .maxMemberCount(studyGroupComment.getStudyGroup().getCapacity().getMaxMemberCount())
                 .field(studyGroupComment.getStudyGroup().getContent().getField())
