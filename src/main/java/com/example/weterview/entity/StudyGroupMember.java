@@ -15,9 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "study_group_members")
 @Comment("사용자와 스터디 그룹 간의 참가 신청 및 상태(신청/수락/거절)를 관리하는 매핑 테이블")
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class StudyGroupMember {
     @Id
@@ -38,13 +36,6 @@ public class StudyGroupMember {
     @Comment(value = "참가요청 or 수락 or 거절")
     private JoinEnum join;
 
-    @PrePersist
-    public void setDefaultJoinStatus() {
-        if (this.join == null) {
-            this.join = JoinEnum.APPLY;
-        }
-    }
-
     @Column(name = "applied_at", nullable = false, updatable = false)
     @CreatedDate
     @Comment(value = "신청한 날짜, 시간")
@@ -58,31 +49,55 @@ public class StudyGroupMember {
     @Comment(value = "거절한 날짜, 시간")
     private LocalDateTime refusedAt;
 
-    public void applyJoin() {
-        validateStatusForAccept();
-        this.appliedAt = LocalDateTime.now();
+    @Builder(access = AccessLevel.PRIVATE)
+    private StudyGroupMember(
+            User user, StudyGroup studyGroup, JoinEnum join) {
+        this.user = user;
+        this.studyGroup = studyGroup;
+        this.join = join;
+    }
+
+    public static StudyGroupMember create(User user, StudyGroup studyGroup) {
+        if (user == null || studyGroup == null) {
+            throw new IllegalArgumentException("User and StudyGroup must not be null");
+        }
+
+        return StudyGroupMember.builder()
+                .user(user)
+                .studyGroup(studyGroup)
+                .join(JoinEnum.APPLY)
+                .build();
     }
 
     public void acceptJoin() {
-        validateStatusForAccept();
+        validateCanTransition();
         this.join = JoinEnum.ACCEPT;
         this.acceptedAt = LocalDateTime.now();
     }
 
     public void refuseJoin() {
-        validateStatusForAccept();
+        validateCanTransition();
         this.join = JoinEnum.REFUSE;
         this.refusedAt = LocalDateTime.now();
     }
 
-    // 유효성 검증
-    private void validateStatusForAccept() {
-        if (this.join == JoinEnum.ACCEPT) {
-            throw new CustomException(ResultCode.ALREADY_ACCEPTED_MEMBER);
+    /**
+     * APPLY 상태가 아니면 예외를 발생
+     */
+    private void validateCanTransition() {
+        if (this.join != JoinEnum.APPLY) {
+            ResultCode errorCode =
+                    this.join == JoinEnum.ACCEPT
+                    ? ResultCode.ALREADY_ACCEPTED_MEMBER
+                    : ResultCode.ALREADY_REFUSED_MEMBER;
+            throw new CustomException(errorCode);
         }
+    }
 
-        if(this.join == JoinEnum.REFUSE) {
-            throw new CustomException(ResultCode.ALREADY_REFUSED_MEMBER);
+    @PrePersist
+    public void setDefaultJoinStatus() {
+        if (this.join == null) {
+            this.join = JoinEnum.APPLY;
         }
     }
 }
