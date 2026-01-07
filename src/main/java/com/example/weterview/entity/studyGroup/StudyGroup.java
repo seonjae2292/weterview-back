@@ -125,6 +125,18 @@ public class StudyGroup extends BaseTimeEntity {
         this.deletedAt = LocalDateTime.now();
     }
 
+    /**
+     * 스터디 그룹 정원 확인
+     */
+
+    public boolean isFull() {
+        if(this.getCapacity().getMaxMemberCount() <= this.getCapacity().getCurrentMemberCount()){
+            return true;
+        }
+
+        return false;
+    }
+
     private void validateEditable() {
         if (this.status == StatusEnum.DELETED) {
             throw new CustomException(ResultCode.ALREADY_DELETED_STUDY_GROUP);

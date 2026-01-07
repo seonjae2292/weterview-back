@@ -128,15 +128,24 @@ public class StudyGroupService {
     }
 
     // 스터디 그룹 참여 신청
+    @Transactional
     public void joinStudyGroup(User principalUser, Long studyGroupId) {
         StudyGroup studyGroup = studyGroupRepository.findById(studyGroupId)
                 .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_NOT_FOUND));
 
-        StudyGroupMember studyGroupMember =
-                studyGroupMemberRepository.findByUserIdAndStudyGroupId(principalUser.getId(), studyGroup)
-                        .orElseThrow(() -> new CustomException(ResultCode.STUDY_GROUP_MEMBER_NOT_FOUND));
+        // 이미 신청한 스터디 그룹인지 확인
+        if (studyGroupMemberRepository.existsByUserAndStudyGroup(principalUser, studyGroup)) {
+            throw new CustomException(ResultCode.ALREADY_APPLIED_MEMBER);
+        }
+        // 스터디 그룹 정원 확인
+        if (studyGroup.isFull()) {
+            throw new CustomException(ResultCode.STUDY_GROUP_FULL);
+        }
 
-        studyGroupMember.applyJoin();
+        StudyGroupMember studyGroupMember =
+                StudyGroupMember.create(principalUser, studyGroup);
+
+        studyGroupMemberRepository.save(studyGroupMember);
     }
 
     // 인기있는 스터디 그룹 조회

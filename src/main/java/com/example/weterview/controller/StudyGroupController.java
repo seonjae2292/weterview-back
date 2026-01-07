@@ -5,6 +5,7 @@ import com.example.weterview.dto.common.ApiResponse;
 import com.example.weterview.dto.studyGroup.request.*;
 import com.example.weterview.dto.studyGroup.response.StudyGroupCommentRes;
 import com.example.weterview.dto.common.response.StudyGroupRes;
+import com.example.weterview.entity.User;
 import com.example.weterview.service.StudyGroupCommentService;
 import com.example.weterview.service.StudyGroupLikeService;
 import com.example.weterview.service.StudyGroupService;
@@ -40,7 +41,8 @@ public class StudyGroupController {
     public ApiResponse<?> getStudyGroup(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute @Valid GetStudyGroupReq req) {
-        Page<StudyGroupRes> response = studyGroupService.getStudyGroup(customUserDetails.getUser(), req);
+        User principalUser = customUserDetails != null ? customUserDetails.getUser() : null;
+        Page<StudyGroupRes> response = studyGroupService.getStudyGroup(principalUser, req);
         return ApiResponse.success(response);
     }
 
