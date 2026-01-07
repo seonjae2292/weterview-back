@@ -17,7 +17,7 @@ public interface StudyGroupMemberRepository extends JpaRepository<StudyGroupMemb
     @Query(value = "select sgm " +
             "from StudyGroupMember sgm " +
             "join fetch User u " +
-            "where sgm.studyGroup.id = :studyGroupId",
+            "on sgm.studyGroup.id = :studyGroupId",
     countQuery = "select count(*) from StudyGroupMember sgm where sgm.studyGroup.id = :studyGroupId")
     Page<StudyGroupMember> findByStudyGroup(@Param("studyGroupId") Long studyGroupId, Pageable pageable);
 
