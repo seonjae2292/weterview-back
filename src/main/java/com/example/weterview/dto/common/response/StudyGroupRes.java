@@ -24,6 +24,7 @@ public class StudyGroupRes {
     private LocationEnum location;
     private String description;
     private String joinCondition;
+    private String schedule;
     private Integer currentMemberCount;
     private Integer maxMemberCount;
     private LocalDateTime startDate;
@@ -45,6 +46,7 @@ public class StudyGroupRes {
                 .location(studyGroup.getLocation())
                 .description(studyGroup.getContent().getDescription())
                 .joinCondition(studyGroup.getContent().getJoinCondition())
+                .schedule(studyGroup.getContent().getSchedule())
                 .currentMemberCount(studyGroup.getCapacity().getCurrentMemberCount())
                 .maxMemberCount(studyGroup.getCapacity().getMaxMemberCount())
                 .startDate(studyGroup.getPeriod().getStartDate())
@@ -64,6 +66,8 @@ public class StudyGroupRes {
                 .subTitle(studyGroup.getContent().getSubTitle())
                 .location(studyGroup.getLocation())
                 .description(studyGroup.getContent().getDescription())
+                .joinCondition(studyGroup.getContent().getJoinCondition())
+                .schedule(studyGroup.getContent().getSchedule())
                 .currentMemberCount(studyGroup.getCapacity().getCurrentMemberCount())
                 .maxMemberCount(studyGroup.getCapacity().getMaxMemberCount())
                 .startDate(studyGroup.getPeriod().getStartDate())
@@ -73,4 +77,5 @@ public class StudyGroupRes {
                 .updatedAt(studyGroup.getUpdatedAt())
                 .build();
     }
+
 }
